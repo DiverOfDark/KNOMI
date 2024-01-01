@@ -99,7 +99,7 @@ jobs:
           override: true
 
       - name: Download Firmware Files
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: firmware
           path: rs-flasher/resources
@@ -147,12 +147,12 @@ jobs:
     steps:
     - name: Download Firmware Files
       id: download1
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: firmware
     - name: Download Flasher Files
       id: download2
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: flasher
 
