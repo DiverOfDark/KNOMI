@@ -3,7 +3,8 @@
   "noKlipperScene": "NoKlipper",
   "firmwareUpdateScene": "FirmwareUpdate",
   "variables": {
-    "background": "0x000000"
+    "background": "0x000000",
+    "accent": "0xFF0000"
   },
   "requests": [
     {
@@ -96,10 +97,12 @@
       "background": "0x000000",
       "content": [
         {
+          "id": "bootup",
           "type": "image",
           "file": "BTT_LOGO.gif"
         },
         {
+          "id": "timer",
           "type": "timer",
           "duration": 15000
         }
@@ -120,11 +123,13 @@
       "background": "background",
       "content": [
         {
+          "id": "APConfig_Back",
           "type": "image",
           "file": "AP_Config_Back.gif",
           "loop": false
         },
         {
+          "id": "APConfig",
           "type": "image",
           "file": "AP_Config.gif",
           "y": -36
@@ -142,6 +147,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Standby",
           "type": "image",
           "file": "Standby.gif"
         }
@@ -182,6 +188,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Voron",
           "type": "image",
           "file": "Voron.gif"
         }
@@ -222,6 +229,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Homing",
           "type": "image",
           "file": "Home.gif"
         }
@@ -238,6 +246,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Leveling",
           "type": "image",
           "file": "Probing.gif"
         }
@@ -254,6 +263,7 @@
       "background": "background",
       "content": [
         {
+          "id": "QGLeveling",
           "type": "image",
           "file": "QGLing.gif"
         }
@@ -270,6 +280,7 @@
       "background": "background",
       "content": [
         {
+          "id": "BedHeating",
           "type": "image",
           "file": "Bed_temp.gif"
         },
@@ -298,6 +309,7 @@
       "background": "background",
       "content": [
         {
+          "id": "ExtruderHeating",
           "type": "image",
           "file": "Ext_temp.gif"
         },
@@ -326,6 +338,7 @@
       "background": "background",
       "content": [
         {
+          "id": "BeforePrint",
           "type": "image",
           "file": "BeforePrinting.gif"
         }
@@ -342,6 +355,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Printing",
           "type": "image",
           "file": "Printing.gif"
         }
@@ -387,6 +401,7 @@
       "background": "background",
       "content": [
         {
+          "id": "Printing100Percent",
           "type": "image",
           "file": "Print_OK.gif"
         }
@@ -403,10 +418,12 @@
       "background": "background",
       "content": [
         {
+          "id": "AfterPrint",
           "type": "image",
           "file": "After_Printing.gif"
         },
         {
+          "id": "timer",
           "type": "timer",
           "duration": 5000
         }
@@ -423,6 +440,7 @@
       "background": "background",
       "content": [
         {
+          "id": "NoKlipper",
           "type": "image",
           "file": "Disconnect_Back.gif"
         }

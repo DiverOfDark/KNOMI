@@ -17,10 +17,14 @@
       "properties": {
         "background": {
           "type": "string"
+        },
+        "accent": {
+          "type": "string"
         }
       },
       "required": [
-        "background"
+        "background",
+        "accent"
       ]
     },
     "requests": {
@@ -120,6 +124,9 @@
                 {
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "type": "string"
+                    },
                     "type": {
                       "const": "image",
                       "type": "string"
@@ -138,6 +145,7 @@
                     }
                   },
                   "required": [
+                    "id",
                     "type",
                     "file"
                   ]
@@ -161,6 +169,9 @@
                 {
                   "type": "object",
                   "properties": {
+                    "id": {
+                      "type": "string"
+                    },
                     "type": {
                       "const": "timer",
                       "type": "string"
@@ -170,6 +181,7 @@
                     }
                   },
                   "required": [
+                    "id",
                     "type",
                     "duration"
                   ]
