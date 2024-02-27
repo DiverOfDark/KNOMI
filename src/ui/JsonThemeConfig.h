@@ -46,11 +46,25 @@ struct Variables {
   std::string background;
 };
 
-struct Coordinate {
+struct ThemeConfig {
   std::string firmwareUpdateScene;
   std::string noKlipperScene;
   std::vector<Request> requests;
   std::vector<Scene> scenes;
   std::string startingScene;
   Variables variables;
+};
+
+class ThemeConfigParser {
+private:
+  ThemeConfig* _config;
+
+public:
+  ThemeConfigParser() {
+
+  }
+
+  ThemeConfig* getConfig() {
+    return _config;
+  }
 };
