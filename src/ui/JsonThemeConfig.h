@@ -57,14 +57,10 @@ struct ThemeConfig {
 
 class ThemeConfigParser {
 private:
-  ThemeConfig* _config;
+  ThemeConfig *_config;
 
 public:
-  ThemeConfigParser() {
+  ThemeConfigParser() {}
 
-  }
-
-  ThemeConfig* getConfig() {
-    return _config;
-  }
+  ThemeConfig *getConfig() { return _config; }
 };

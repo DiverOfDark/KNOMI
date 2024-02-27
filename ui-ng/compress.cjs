@@ -5,6 +5,10 @@ const BUNDLE_PAGE = FS.readFileSync(
     path.resolve(__dirname, "./dist/index.html.gz"),
 );
 
+const THEMECONFIG = FS.readFileSync(
+    path.resolve(__dirname, "../src/config.json"),
+);
+
 function chunkArray(myArray, chunk_size) {
     let index = 0;
     const arrayLength = myArray.length;
@@ -45,4 +49,22 @@ console.log(
     `[Generated] Generated webpage to knomiWebpage.h: ${(
         BUNDLE_PAGE.length / 1024
     ).toFixed(2)}KB`,
+);
+
+const FILE2 = `#pragma once
+
+static const uint32_t THEMECONFIG_SIZE = ${THEMECONFIG.length};
+static const char THEMECONFIG[] = { 
+${addLineBreaks(THEMECONFIG)} 
+};
+`;
+
+FS.writeFileSync(
+    path.resolve(__dirname, "../src/generated/themeConfig.h"),
+    FILE2,
+);
+console.log(
+    `[Generated] Generated themeconfig.h: ${(THEMECONFIG.length / 1024).toFixed(
+        2,
+    )}KB`,
 );
