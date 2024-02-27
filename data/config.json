@@ -97,9 +97,7 @@
       "content": [
         {
           "type": "image",
-          "file": "BTT_LOGO.gif",
-          "x": 0,
-          "y": 0
+          "file": "BTT_LOGO.gif"
         },
         {
           "type": "timer",
@@ -124,14 +122,11 @@
         {
           "type": "image",
           "file": "AP_Config_Back.gif",
-          "x": 0,
-          "y": 0,
           "loop": false
         },
         {
           "type": "image",
           "file": "AP_Config.gif",
-          "x": 0,
           "y": -36
         }
       ],
@@ -148,39 +143,37 @@
       "content": [
         {
           "type": "image",
-          "file": "Standby.gif",
-          "x": 0,
-          "y": 0
+          "file": "Standby.gif"
         }
       ],
       "transitions": [
         {
           "condition": "(deps.klipperApi->isHoming())",
-          "transition": "Homing"
+          "target": "Homing"
         },
         {
           "condition": "(deps.klipperApi->isLeveling())",
-          "transition": "Leveling"
+          "target": "Leveling"
         },
         {
           "condition": "(deps.klipperApi->isQGLeveling())",
-          "transition": "QGLeveling"
+          "target": "QGLeveling"
         },
         {
           "condition": "(deps.klipperApi->isHeatingBed())",
-          "transition": "BedHeating"
+          "target": "BedHeating"
         },
         {
           "condition": "(deps.klipperApi->isHeatingNozzle())",
-          "transition": "ExtruderHeating"
+          "target": "ExtruderHeating"
         },
         {
           "condition": "(deps.klipperApi->isPrinting())",
-          "transition": "BeforePrint"
+          "target": "BeforePrint"
         },
         {
           "condition": "(ri_standby->isPlayedToEnd())",
-          "transition": "Voron"
+          "target": "Voron"
         }
       ]
     },
@@ -190,39 +183,37 @@
       "content": [
         {
           "type": "image",
-          "file": "Voron.gif",
-          "x": 0,
-          "y": 0
+          "file": "Voron.gif"
         }
       ],
       "transitions": [
         {
           "condition": "(deps.klipperApi->isHoming())",
-          "transition": "Homing"
+          "target": "Homing"
         },
         {
           "condition": "(deps.klipperApi->isLeveling())",
-          "transition": "Leveling"
+          "target": "Leveling"
         },
         {
           "condition": "(deps.klipperApi->isQGLeveling())",
-          "transition": "QGLeveling"
+          "target": "QGLeveling"
         },
         {
           "condition": "(deps.klipperApi->isHeatingBed())",
-          "transition": "BedHeating"
+          "target": "BedHeating"
         },
         {
           "condition": "(deps.klipperApi->isHeatingNozzle())",
-          "transition": "ExtruderHeating"
+          "target": "ExtruderHeating"
         },
         {
           "condition": "(deps.klipperApi->isPrinting())",
-          "transition": "BeforePrint"
+          "target": "BeforePrint"
         },
         {
           "condition": "(ri_standby->isPlayedToEnd())",
-          "transition": "Voron"
+          "target": "Voron"
         }
       ]
     },
@@ -232,9 +223,7 @@
       "content": [
         {
           "type": "image",
-          "file": "Home.gif",
-          "x": 0,
-          "y": 0
+          "file": "Home.gif"
         }
       ],
       "transitions": [
@@ -250,9 +239,7 @@
       "content": [
         {
           "type": "image",
-          "file": "Probing.gif",
-          "x": 0,
-          "y": 0
+          "file": "Probing.gif"
         }
       ],
       "transitions": [
@@ -268,9 +255,7 @@
       "content": [
         {
           "type": "image",
-          "file": "QGLing.gif",
-          "x": 0,
-          "y": 0
+          "file": "QGLing.gif"
         }
       ],
       "transitions": [
@@ -286,22 +271,18 @@
       "content": [
         {
           "type": "image",
-          "file": "Bed_temp.gif",
-          "x": 0,
-          "y": 0
+          "file": "Bed_temp.gif"
         },
         {
           "type": "text",
           "size": "small",
-          "text": "deps.klipperApi->getBedActualTemp()",
-          "x": 0,
+          "value": "deps.klipperApi->getBedActualTemp()",
           "y": 75
         },
         {
           "type": "text",
           "size": "small",
-          "text": "deps.klipperApi->getBedTargetTemp()",
-          "x": 0,
+          "value": "deps.klipperApi->getBedTargetTemp()",
           "y": -75
         }
       ],
@@ -318,22 +299,18 @@
       "content": [
         {
           "type": "image",
-          "file": "Ext_temp.gif",
-          "x": 0,
-          "y": 0
+          "file": "Ext_temp.gif"
         },
         {
           "type": "text",
           "size": "small",
-          "text": "deps.klipperApi->getExtruderActualTemp()",
-          "x": 0,
+          "value": "deps.klipperApi->getExtruderActualTemp()",
           "y": 75
         },
         {
           "type": "text",
           "size": "small",
-          "text": "deps.klipperApi->getExtruderTargetTemp()",
-          "x": 0,
+          "value": "deps.klipperApi->getExtruderTargetTemp()",
           "y": -75
         }
       ],
@@ -350,9 +327,7 @@
       "content": [
         {
           "type": "image",
-          "file": "BeforePrinting.gif",
-          "x": 0,
-          "y": 0
+          "file": "BeforePrinting.gif"
         }
       ],
       "transitions": [
@@ -368,9 +343,7 @@
       "content": [
         {
           "type": "image",
-          "file": "Printing.gif",
-          "x": 0,
-          "y": 0
+          "file": "Printing.gif"
         }
       ],
       "transitions": [
@@ -395,9 +368,7 @@
         {
           "type": "text",
           "size": "large",
-          "text": "deps.klipperApi->getProgressData() + '%'",
-          "x": 0,
-          "y": 0
+          "value": "deps.klipperApi->getProgressData() + '%'"
         }
       ],
       "transitions": [
@@ -417,9 +388,7 @@
       "content": [
         {
           "type": "image",
-          "file": "Print_OK.gif",
-          "x": 0,
-          "y": 0
+          "file": "Print_OK.gif"
         }
       ],
       "transitions": [
@@ -435,9 +404,7 @@
       "content": [
         {
           "type": "image",
-          "file": "After_Printing.gif",
-          "x": 0,
-          "y": 0
+          "file": "After_Printing.gif"
         },
         {
           "type": "timer",
@@ -457,9 +424,7 @@
       "content": [
         {
           "type": "image",
-          "file": "Disconnect_Back.gif",
-          "x": 0,
-          "y": 0
+          "file": "Disconnect_Back.gif"
         }
       ],
       "transitions": [
@@ -471,9 +436,8 @@
     },
     {
       "id": "FirmwareUpdate",
-      // OnEnter -> deps.progress.canStartUpdate = true;
-      // OnExit -> deps.progress.canStartUpdate = false;
-
+      "onEnter": "deps.progress.canStartUpdate = true",
+      "onExit": "deps.progress.canStartUpdate = false",
       "background": "background",
       "content": [
         {
@@ -483,9 +447,7 @@
         {
           "type": "text",
           "size": "large",
-          "text": " (int16_t)(100.0 * progress->current / progress->total) + '%'",
-          "x": 0,
-          "y": 0
+          "value": " (int16_t)(100.0 * progress->current / progress->total) + '%'"
         }
       ],
       "transitions": [

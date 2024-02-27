@@ -1,0 +1,215 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Generated schema for Root",
+  "type": "object",
+  "properties": {
+    "startingScene": {
+      "type": "string"
+    },
+    "noKlipperScene": {
+      "type": "string"
+    },
+    "firmwareUpdateScene": {
+      "type": "string"
+    },
+    "variables": {
+      "type": "object",
+      "properties": {
+        "background": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "background"
+      ]
+    },
+    "requests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "variables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "stringFormat": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "type",
+                "path"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "variables"
+        ]
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "background": {
+            "type": "string"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "text",
+                      "type": "string"
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "size": {
+                      "oneOf": [
+                        {
+                          "type": "string",
+                          "const": "small"
+                        },
+                        {
+                          "type": "string",
+                          "const": "large"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "value",
+                    "size"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "image",
+                      "type": "string"
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "loop": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "file"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "arc",
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "value"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "const": "timer",
+                      "type": "string"
+                    },
+                    "duration": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "duration"
+                  ]
+                }
+              ]
+            }
+          },
+          "transitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "condition",
+                "target"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "content",
+          "transitions"
+        ]
+      }
+    }
+  },
+  "required": [
+    "startingScene",
+    "noKlipperScene",
+    "firmwareUpdateScene",
+    "variables",
+    "requests",
+    "scenes"
+  ]
+}
