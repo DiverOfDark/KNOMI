@@ -1,0 +1,499 @@
+{
+  "startingScene": "bootup",
+  "noKlipperScene": "NoKlipper",
+  "firmwareUpdateScene": "FirmwareUpdate",
+  "variables": {
+    "background": "0x000000"
+  },
+  "requests": [
+    {
+      "id": "heating",
+      "url": "/api/printer",
+      "variables": [
+        {
+          "name": "text_bed_actual_temp",
+          "type": "double",
+          "stringFormat": "%i C",
+          "path": "temperature.bed.actual"
+        },
+        {
+          "name": "text_bed_actual_target",
+          "type": "double",
+          "stringFormat": "%i C",
+          "path": "temperature.bed.target"
+        },
+        {
+          "name": "text_extruder_actual_temp",
+          "type": "double",
+          "stringFormat": "%i C",
+          "path": "temperature.tool0.actual"
+        },
+        {
+          "name": "text_extruder_actual_target",
+          "type": "double",
+          "stringFormat": "%i C",
+          "path": "temperature.tool0.target"
+        },
+        {
+          "name": "isPrinting",
+          "type": "boolean",
+          "stringFormat": "%i C",
+          "path": "state.flags.printing"
+        },
+        {
+          "name": "isPaused",
+          "type": "boolean",
+          "path": "state.flags.paused"
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "url": "/printer/objects/query?gcode_macro%20_KNOMI_STATUS",
+      "variables": [
+        {
+          "name": "homing",
+          "path": "result.status.gcode_macro _KNOMI_STATUS.homing",
+          "type": "boolean"
+        },
+        {
+          "name": "probing",
+          "path": "result.status.gcode_macro _KNOMI_STATUS.probing",
+          "type": "boolean"
+        },
+        {
+          "name": "qgling",
+          "path": "result.status.gcode_macro _KNOMI_STATUS.qgling",
+          "type": "boolean"
+        },
+        {
+          "name": "heating_nozzle",
+          "path": "result.status.gcode_macro _KNOMI_STATUS.heating_nozzle",
+          "type": "boolean"
+        },
+        {
+          "name": "heating_bed",
+          "path": "result.status.gcode_macro _KNOMI_STATUS.heating_bed",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
+      "id": "printing",
+      "url": "/printer/objects/query?display_status",
+      "variables": [
+        {
+          "name": "progress",
+          "type": "percentage",
+          "path": "result.status.display_status.progress"
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "bootup",
+      "background": "0x000000",
+      "content": [
+        {
+          "type": "image",
+          "file": "BTT_LOGO.gif",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "timer",
+          "duration": 15000
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "wifiManager->isInConfigMode() && !timer->isCompleted()",
+          "target": "APConfig"
+        },
+        {
+          "condition": "!wifiManager->isInConfigMode()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "APConfig",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "AP_Config_Back.gif",
+          "x": 0,
+          "y": 0,
+          "loop": false
+        },
+        {
+          "type": "image",
+          "file": "AP_Config.gif",
+          "x": 0,
+          "y": -36
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!wifiManager->isInConfigMode()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "Standby",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Standby.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "(deps.klipperApi->isHoming())",
+          "transition": "Homing"
+        },
+        {
+          "condition": "(deps.klipperApi->isLeveling())",
+          "transition": "Leveling"
+        },
+        {
+          "condition": "(deps.klipperApi->isQGLeveling())",
+          "transition": "QGLeveling"
+        },
+        {
+          "condition": "(deps.klipperApi->isHeatingBed())",
+          "transition": "BedHeating"
+        },
+        {
+          "condition": "(deps.klipperApi->isHeatingNozzle())",
+          "transition": "ExtruderHeating"
+        },
+        {
+          "condition": "(deps.klipperApi->isPrinting())",
+          "transition": "BeforePrint"
+        },
+        {
+          "condition": "(ri_standby->isPlayedToEnd())",
+          "transition": "Voron"
+        }
+      ]
+    },
+    {
+      "id": "Voron",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Voron.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "(deps.klipperApi->isHoming())",
+          "transition": "Homing"
+        },
+        {
+          "condition": "(deps.klipperApi->isLeveling())",
+          "transition": "Leveling"
+        },
+        {
+          "condition": "(deps.klipperApi->isQGLeveling())",
+          "transition": "QGLeveling"
+        },
+        {
+          "condition": "(deps.klipperApi->isHeatingBed())",
+          "transition": "BedHeating"
+        },
+        {
+          "condition": "(deps.klipperApi->isHeatingNozzle())",
+          "transition": "ExtruderHeating"
+        },
+        {
+          "condition": "(deps.klipperApi->isPrinting())",
+          "transition": "BeforePrint"
+        },
+        {
+          "condition": "(ri_standby->isPlayedToEnd())",
+          "transition": "Voron"
+        }
+      ]
+    },
+    {
+      "id": "Homing",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Home.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isHoming() && ri_home->isPlayedToEnd()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "Leveling",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Probing.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isLeveling() && ri_home->isPlayedToEnd()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "QGLeveling",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "QGLing.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isQGLeveling() && ri_home->isPlayedToEnd()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "BedHeating",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Bed_temp.gif",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "text",
+          "size": "small",
+          "text": "deps.klipperApi->getBedActualTemp()",
+          "x": 0,
+          "y": 75
+        },
+        {
+          "type": "text",
+          "size": "small",
+          "text": "deps.klipperApi->getBedTargetTemp()",
+          "x": 0,
+          "y": -75
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isHeatingBed()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "ExtruderHeating",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Ext_temp.gif",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "text",
+          "size": "small",
+          "text": "deps.klipperApi->getExtruderActualTemp()",
+          "x": 0,
+          "y": 75
+        },
+        {
+          "type": "text",
+          "size": "small",
+          "text": "deps.klipperApi->getExtruderTargetTemp()",
+          "x": 0,
+          "y": -75
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isHeatingNozzle()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "BeforePrint",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "BeforePrinting.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "ri_before->isPlayedToEnd()",
+          "target": "Printing"
+        }
+      ]
+    },
+    {
+      "id": "Printing",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Printing.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!ri_printing->isPlayedToEnd() && deps.klipperApi->isPrinting()",
+          "target": "Printing1Percent"
+        },
+        {
+          "condition": "!ri_printing->isPlayedToEnd() && !deps.klipperApi->isPrinting()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "Printing1Percent",
+      "background": "background",
+      "content": [
+        {
+          "type": "arc",
+          "value": "deps.klipperApi->getProgressData()"
+        },
+        {
+          "type": "text",
+          "size": "large",
+          "text": "deps.klipperApi->getProgressData() + '%'",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isPrinting()",
+          "target": "Standby"
+        },
+        {
+          "condition": "deps.klipperApi->isPrinting() && deps.klipperApi->getProgressData() == 100",
+          "target": "Printing100Percent"
+        }
+      ]
+    },
+    {
+      "id": "Printing100Percent",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Print_OK.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "ri_ok->isPlayedToEnd()",
+          "target": "AfterPrint"
+        }
+      ]
+    },
+    {
+      "id": "AfterPrint",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "After_Printing.gif",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "type": "timer",
+          "duration": 5000
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "timer->isCompleted() && ri_after->isPlayedToEnd()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "NoKlipper",
+      "background": "background",
+      "content": [
+        {
+          "type": "image",
+          "file": "Disconnect_Back.gif",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.klipperApi->isKlipperNotAvailable()",
+          "target": "Standby"
+        }
+      ]
+    },
+    {
+      "id": "FirmwareUpdate",
+      // OnEnter -> deps.progress.canStartUpdate = true;
+      // OnExit -> deps.progress.canStartUpdate = false;
+
+      "background": "background",
+      "content": [
+        {
+          "type": "arc",
+          "value": " (int16_t)(100.0 * progress->current / progress->total)"
+        },
+        {
+          "type": "text",
+          "size": "large",
+          "text": " (int16_t)(100.0 * progress->current / progress->total) + '%'",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "transitions": [
+        {
+          "condition": "!deps.progress->isInProgress",
+          "target": "Standby"
+        }
+      ]
+    }
+  ]
+}

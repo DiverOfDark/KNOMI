@@ -1,9 +1,9 @@
 #pragma once
-#include "../generated/images.h"
-#include "../network/KlipperApi.h"
-#include "../network/WifiManager.h"
 #include "SwitchSceneRequest.h"
+#include "generated/images.h"
 #include "log.h"
+#include "network/KlipperApi.h"
+#include "network/WifiManager.h"
 #include "ui/Arc.h"
 #include "ui/DisplayHAL.h"
 #include "ui/SceneTimer.h"

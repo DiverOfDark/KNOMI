@@ -1,9 +1,9 @@
 #pragma once
+#include "AbstractScene.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
 #include "log.h"
 #include "network/WifiManager.h"
-#include "scenes/AbstractScene.h"
 #include "scenes/BootupLogo.h"
 #include "scenes/SwitchSceneRequest.h"
 #include "soc/rtc_wdt.h"

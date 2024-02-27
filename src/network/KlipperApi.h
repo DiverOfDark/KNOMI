@@ -1,8 +1,8 @@
 #pragma once
 #include "../config/Config.h"
+#include "KlipperApiRequest.h"
 #include "log.h"
 #include "requests/HeatingAndOverallRequest.h"
-#include "requests/KlipperApiRequest.h"
 #include "requests/KnomiStatusRequest.h"
 #include "requests/PrintingRequest.h"
 #include <ArduinoJson.h>
@@ -26,11 +26,6 @@ public:
   String &getBedActualTemp() { return {req1.text_bed_actual_temp}; }
   String &getBedTargetTemp() { return {req1.text_bed_target_temp}; }
   int getProgressData() const { return req2.progress_data; }
-
-  int getExtruderActualTempValue() const { return req1.tooltemp_actual; }
-  int getExtruderTargetTempValue() const { return req1.tooltemp_target; }
-  int getBedActualTempValue() const { return req1.bedtemp_actual; }
-  int getBedTargetTempValue() const { return req1.bedtemp_target; }
 
   bool isHoming() const { return req3.isHoming; }
   bool isLeveling() const { return req3.isProbing; }
