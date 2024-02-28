@@ -5,6 +5,7 @@
 #include "network/KnomiWebServer.h"
 #include "network/WifiManager.h"
 #include "ui/DisplayHAL.h"
+#include "ui/JsonThemeConfig.h"
 #include "ui/SceneManager.h"
 #include "watchdog.h"
 #include <Arduino.h>
@@ -20,6 +21,7 @@ KlipperApi *klipperApi = nullptr;
 __attribute__((unused)) SceneManager *sceneManager = nullptr;
 DisplayHAL *displayHAL = nullptr;
 UpdateProgress *progress = nullptr;
+ThemeConfigParser *themeConfig = nullptr;
 Watchdog *watchDog = nullptr;
 
 uint32_t netcheck_nexttime = 0;
@@ -61,12 +63,15 @@ __attribute__((unused)) void setup() {
   LV_LOG_INFO("Timer and button created");
   displayHAL = new DisplayHAL();
   LV_LOG_INFO("DisplayHAL created");
-  klipperApi = new KlipperApi(config);
+  themeConfig = new ThemeConfigParser();
+  LV_LOG_INFO("Theme config loaded");
+  klipperApi = new KlipperApi(themeConfig->getConfig(), config);
   LV_LOG_INFO("KlipperAPI started");
   progress = new UpdateProgress();
   webServer = new KnomiWebServer(config, wifiManager, progress);
   LV_LOG_INFO("WebServer started");
-  sceneManager = new SceneManager(webServer, progress, klipperApi, wifiManager, config->getUiConfig(), displayHAL, btn);
+  sceneManager = new SceneManager(webServer, themeConfig->getConfig(), progress, klipperApi, wifiManager,
+                                  config->getUiConfig(), displayHAL, btn);
   LV_LOG_INFO("SceneManager started");
   wifiManager->connectToWiFi();
   LV_LOG_INFO("Connected to wifi");

@@ -11,6 +11,7 @@
 class KlipperApi {
 private:
   Config *config;
+  ThemeConfig *themeConfig;
 
   String text_print_file_name = "No Printfile"; // 打印文件名
 
@@ -19,7 +20,10 @@ private:
   KnomiStatusRequest req3;
 
 public:
-  KlipperApi(Config *config) { this->config = config; }
+  KlipperApi(ThemeConfig* themeConfig, Config *config) {
+    this->themeConfig = themeConfig;
+    this->config = config;
+  }
 
   String &getExtruderActualTemp() { return {req1.text_ext_actual_temp}; }
   String &getExtruderTargetTemp() { return {req1.text_ext_target_temp}; }
