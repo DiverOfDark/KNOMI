@@ -4,16 +4,16 @@
 #include "esp_timer.h"
 #include "log.h"
 #include "network/WifiManager.h"
-#include "scenes/BootupLogo.h"
-#include "scenes/SwitchSceneRequest.h"
+#include "optional"
 #include "soc/rtc_wdt.h"
 
 class SceneManager {
 private:
   AbstractScene *currentScene = nullptr;
-  SceneId currentSceneId;
-  SwitchSceneRequest *switchSceneRequest = nullptr;
+  String currentSceneId;
+  std::optional<String> nextSceneId;
   SceneDeps deps;
+  ThemeConfig *themeConfig;
   Button *button;
 
   static void refreshSceneCallback(void *arg) {
@@ -31,8 +31,7 @@ public:
                         Button *btn)
       : deps(klipperApi, progress, manager, webServer, config, displayHAL) {
     this->themeConfig = themeConfig;
-    this->currentScene = new BootupLogoScene(deps);
-    this->currentSceneId = SceneId::BootupLogo;
+    this->nextSceneId = themeConfig->startingScene.c_str();
     this->button = btn;
 
     xTaskCreatePinnedToCore(
@@ -42,41 +41,57 @@ public:
         NULL, 0); /* Core ID */
   }
 
-  SceneId getCurrentSceneId() { return currentSceneId; }
+  String getCurrentSceneId() { return currentSceneId; }
 
   void switchSceneIfRequired() {
-    SwitchSceneRequest *pRequest = switchSceneRequest;
-    if (pRequest != nullptr) {
+    if (nextSceneId.has_value()) {
       LV_LOG_INFO("Deleting current scene");
-      switchSceneRequest = nullptr;
+      String &string = nextSceneId.value();
 
       delete currentScene;
       currentScene = nullptr;
-      LV_LOG_INFO((String("Switching scene to ") + String(pRequest->id)).c_str());
-      currentScene = pRequest->Provide();
-      currentSceneId = pRequest->id;
-      delete pRequest;
+
+      LV_LOG_INFO(("Switching scene to " + nextSceneId.value()).c_str());
+
+      const std::vector<Scene>::iterator &iterator =
+          std::find_if(themeConfig->scenes.begin(), themeConfig->scenes.end(),
+                       [&](const Scene &item) { return item.id == nextSceneId.value().c_str(); });
+
+      Scene &scene = iterator.operator*();
+      if (iterator != themeConfig->scenes.end()) {
+        currentScene = new AbstractScene(deps, scene);
+        nextSceneId->clear();
+      } else {
+        LV_LOG_INFO("Failed to find Scene %s", nextSceneId.value().c_str());
+        nextSceneId = themeConfig->startingScene.c_str();
+      }
+
+      nextSceneId->clear();
     }
   }
 
   void refreshScene() {
-    if (deps.progress->isInProgress && this->getCurrentSceneId() != SceneId::FirmwareUpdate) {
-      switchSceneRequest = new SwitchSceneRequest(deps, SceneId::FirmwareUpdate);
-    } else if (deps.mgr->isInConfigMode() && this->getCurrentSceneId() != SceneId::APConfig &&
-               this->getCurrentSceneId() != SceneId::BootupLogo) {
-      switchSceneRequest = new SwitchSceneRequest(deps, SceneId::APConfig);
+    if (deps.progress->isInProgress && this->getCurrentSceneId() != themeConfig->firmwareUpdateScene.c_str()) {
+      this->nextSceneId = themeConfig->firmwareUpdateScene.c_str();
+    } else if (deps.mgr->isInConfigMode() && this->getCurrentSceneId() != themeConfig->accessPointConfig.c_str() &&
+               this->getCurrentSceneId() != themeConfig->startingScene.c_str()) {
+      nextSceneId = themeConfig->accessPointConfig.c_str();
     } else if (WiFi.isConnected() && !button->isPressed()) {
-      if (deps.klipperApi->isKlipperNotAvailable() && this->getCurrentSceneId() != SceneId::NoKlipper) {
-        switchSceneRequest = new SwitchSceneRequest(deps, SceneId::NoKlipper);
+      if (deps.klipperApi->isKlipperNotAvailable() &&
+          this->getCurrentSceneId() != themeConfig->noKlipperScene.c_str()) {
+        this->nextSceneId = themeConfig->noKlipperScene.c_str();
       }
     }
 
-    if (switchSceneRequest == nullptr) {
-      switchSceneRequest = currentScene->NextScene();
+    if (currentScene != nullptr && !nextSceneId.has_value()) {
+      auto next = currentScene->nextScene();
+      if (next != nullptr) {
+        nextSceneId = next;
+      }
     }
 
     if (currentScene != nullptr) {
-      currentScene->Tick();
+      currentScene->tick();
       switchSceneIfRequired();
     }
   }

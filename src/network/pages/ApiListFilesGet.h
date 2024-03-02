@@ -1,5 +1,4 @@
 #pragma once
-#include "../../generated/images.h"
 #include "AbstractPage.h"
 #include "ArduinoJson.h"
 #include "LittleFS.h"
@@ -30,16 +29,6 @@ public:
       file = root.openNextFile();
     }
     root.close();
-
-    for (const char *file : KnownResourceImages::enumerateFiles()) {
-      if (added.find(String(file)) == added.end()) {
-        const JsonObject &item = array.add<JsonObject>();
-
-        String fileName = String(file);
-        item["name"] = fileName;
-        item["size"] = -1;
-      }
-    }
 
     String output;
     serializeJsonPretty(doc, output);

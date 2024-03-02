@@ -1,25 +1,24 @@
 #pragma once
-#include "SwitchSceneRequest.h"
-#include "generated/images.h"
 #include "log.h"
 #include "network/KlipperApi.h"
 #include "network/WifiManager.h"
 #include "ui/Arc.h"
 #include "ui/DisplayHAL.h"
+#include "ui/JsonThemeConfig.h"
+#include "ui/SceneDeps.h"
 #include "ui/SceneTimer.h"
 #include "ui/TextLabel.h"
 
 class AbstractScene {
-protected:
+private:
   SceneDeps deps;
 
-  explicit AbstractScene(SceneDeps deps) : deps(deps) {
+public:
+  AbstractScene(SceneDeps deps, Scene config) : deps(deps) {
     deps.displayHAL->setBackgroundColor(deps.styles->getBackgroundColor());
   }
 
-public:
-  virtual SwitchSceneRequest *NextScene() = 0;
-  virtual ~AbstractScene(){};
+  String nextScene() { return ""; }
 
-  virtual void Tick() {}
+  void tick() {}
 };

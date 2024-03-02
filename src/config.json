@@ -1,6 +1,7 @@
 {
   "startingScene": "bootup",
   "noKlipperScene": "NoKlipper",
+  "accessPointConfig": "APConfig",
   "firmwareUpdateScene": "FirmwareUpdate",
   "variables": {
     "background": "0x000000",

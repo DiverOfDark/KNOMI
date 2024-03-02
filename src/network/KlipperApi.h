@@ -19,7 +19,7 @@ public:
     this->config = config;
 
     std::for_each(themeConfig->requests.begin(), themeConfig->requests.end(),
-                  [&](const Request &item) { requests.push_back(KlipperApiRequest(item.id)); });
+                  [&](Request &item) { requests.emplace_back(item); });
   }
 
   ulong getLastSuccessfullCall() const {

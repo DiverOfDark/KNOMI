@@ -183,9 +183,11 @@ public:
 
       if (var.type == "double") {
         value = String(jsonObj.as<double>());
-      } if (var.type == "boolean") {
+      }
+      if (var.type == "boolean") {
         value = String(jsonObj.as<bool>());
-      } if (var.type == "percentage") {
+      }
+      if (var.type == "percentage") {
         value = String(jsonObj.as<double>() * 100);
       } else {
         LV_LOG_WARN("Unknown json type %s at %s", var.type.c_str(), var.name.c_str());

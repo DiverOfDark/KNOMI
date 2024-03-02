@@ -133,6 +133,7 @@ public:
     firmwareUpdateScene = doc["firmwareUpdateScene"].as<const char *>();
     noKlipperScene = doc["noKlipperScene"].as<const char *>();
     startingScene = doc["startingScene"].as<const char *>();
+    accessPointConfig = doc["accessPointConfig"].as<const char *>();
     JsonArray requests = doc["requests"].as<JsonArray>();
     for (int i = 0; i < requests.size(); i++) {
       auto req = Request();
@@ -150,6 +151,7 @@ public:
 
   std::string firmwareUpdateScene;
   std::string noKlipperScene;
+  std::string accessPointConfig;
   std::vector<Request> requests;
   std::vector<Scene> scenes;
   std::string startingScene;

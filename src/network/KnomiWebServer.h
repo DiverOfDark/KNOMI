@@ -1,7 +1,6 @@
 #pragma once
 #include "../Version.h"
 #include "../config/Config.h"
-#include "../generated/images.h"
 #include "../generated/knomiWebpage.h"
 #include "Arduino.h"
 #include "Update.h"

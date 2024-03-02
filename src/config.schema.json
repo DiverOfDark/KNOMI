@@ -6,6 +6,9 @@
     "startingScene": {
       "type": "string"
     },
+    "accessPointConfig": {
+      "type": "string"
+    },
     "noKlipperScene": {
       "type": "string"
     },
