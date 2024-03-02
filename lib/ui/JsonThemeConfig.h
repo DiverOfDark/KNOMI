@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../generated/themeConfig.h"
-#include "ArduinoJson.h"
-#include "optional"
-#include "string"
-#include "vector"
 #include <optional>
+#include <string>
+#include <vector>
+#include "ArduinoJson.h"
+#include "../generated/themeConfig.h"
 
 struct Variable {
   void apply(JsonObject obj) {

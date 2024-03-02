@@ -19,15 +19,6 @@ int runUnityTests(void) {
   return UNITY_END();
 }
 
-// WARNING!!! PLEASE REMOVE UNNECESSARY MAIN IMPLEMENTATIONS //
-
-/**
-  * For native dev-platform or for some embedded frameworks
- */
-int main(void) {
-  return runUnityTests();
-}
-
 /**
   * For Arduino framework
  */
@@ -39,10 +30,3 @@ void setup() {
   runUnityTests();
 }
 void loop() {}
-
-/**
-  * For ESP-IDF framework
- */
-void app_main() {
-  runUnityTests();
-}

@@ -1,3 +1,4 @@
+#include "../lib/ui/JsonThemeConfig.h"
 #include "button/Button.h"
 #include "config/Config.h"
 #include "log.h"
@@ -5,7 +6,6 @@
 #include "network/KnomiWebServer.h"
 #include "network/WifiManager.h"
 #include "ui/DisplayHAL.h"
-#include "ui/JsonThemeConfig.h"
 #include "ui/SceneManager.h"
 #include "watchdog.h"
 #include <Arduino.h>

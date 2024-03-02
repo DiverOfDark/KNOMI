@@ -6,7 +6,7 @@ const BUNDLE_PAGE = FS.readFileSync(
 );
 
 const THEMECONFIG = FS.readFileSync(
-    path.resolve(__dirname, "../src/config.json"),
+    path.resolve(__dirname, "../lib/config.json"),
 );
 
 function chunkArray(myArray, chunk_size) {
@@ -60,7 +60,7 @@ ${addLineBreaks(THEMECONFIG)}
 `;
 
 FS.writeFileSync(
-    path.resolve(__dirname, "../src/generated/themeConfig.h"),
+    path.resolve(__dirname, "../lib/generated/themeConfig.h"),
     FILE2,
 );
 console.log(

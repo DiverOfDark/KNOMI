@@ -5,7 +5,7 @@
 #include "log.h"
 #include "network/WifiManager.h"
 #include "optional"
-#include "soc/rtc_wdt.h"
+#include "rtc_wdt.h"
 
 class SceneManager {
 private:
