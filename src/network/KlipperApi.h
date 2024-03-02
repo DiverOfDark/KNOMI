@@ -1,8 +1,8 @@
 #pragma once
-#include "../../lib/ui/JsonThemeConfig.h"
 #include "../config/Config.h"
 #include "KlipperApiRequest.h"
 #include "log.h"
+#include "ui/JsonThemeConfig.h"
 #include <ArduinoJson.h>
 #include <queue>
 #include <vector>

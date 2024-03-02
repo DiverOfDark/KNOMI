@@ -1,10 +1,10 @@
 #pragma once
 
+#include "../generated/themeConfig.h"
+#include "ArduinoJson.h"
 #include <optional>
 #include <string>
 #include <vector>
-#include "ArduinoJson.h"
-#include "../generated/themeConfig.h"
 
 struct Variable {
   void apply(JsonObject obj) {
@@ -25,7 +25,7 @@ struct Request {
     id = obj["id"].as<const char *>();
     url = obj["url"].as<const char *>();
     JsonArray variables = obj["variables"].as<JsonArray>();
-    for (auto && variable : variables) {
+    for (auto &&variable : variables) {
       auto v = Variable();
       v.apply(variable.as<JsonObject>());
       this->variables.push_back(v);
@@ -98,13 +98,13 @@ struct Scene {
     id = obj["id"].as<const char *>();
     background = obj["background"].as<const char *>();
     JsonArray content = obj["content"].as<JsonArray>();
-    for (auto && i : content) {
+    for (auto &&i : content) {
       auto c = Content();
       c.apply(i.as<JsonObject>());
       this->content.push_back(c);
     }
     JsonArray transitions = obj["transitions"].as<JsonArray>();
-    for (auto && transition : transitions) {
+    for (auto &&transition : transitions) {
       auto t = Transition();
       t.apply(transition.as<JsonObject>());
       this->transitions.push_back(t);
@@ -133,13 +133,9 @@ struct Variables {
   std::string background;
   std::string accent;
 
-  uint32_t accentColor() {
-    return std::stoul(accent, nullptr, 16);
-  }
+  uint32_t accentColor() { return std::stoul(accent, nullptr, 16); }
 
-  uint32_t backgroundColor() {
-    return std::stoul(background, nullptr, 16);
-  }
+  uint32_t backgroundColor() { return std::stoul(background, nullptr, 16); }
 };
 
 struct ThemeConfig {
@@ -150,13 +146,13 @@ public:
     startingScene = doc["startingScene"].as<const char *>();
     accessPointConfig = doc["accessPointConfig"].as<const char *>();
     JsonArray requests = doc["requests"].as<JsonArray>();
-    for (auto && request : requests) {
+    for (auto &&request : requests) {
       auto req = Request();
       req.apply(request.as<JsonObject>());
       this->requests.push_back(req);
     }
     JsonArray scenes = doc["scenes"].as<JsonArray>();
-    for (auto && i : scenes) {
+    for (auto &&i : scenes) {
       auto scene = Scene();
       scene.apply(i.as<JsonObject>());
       this->scenes.push_back(scene);

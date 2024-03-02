@@ -1,10 +1,10 @@
 #pragma once
-#include "../../lib/ui/JsonThemeConfig.h"
 #include "ArduinoJson.h"
 #include "StreamString.h"
 #include "WString.h"
 #include "map"
 #include "string"
+#include "ui/JsonThemeConfig.h"
 
 // conflicts with ESPAsyncWebServer
 namespace esp {

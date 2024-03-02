@@ -1,10 +1,10 @@
 #pragma once
-#include "../../lib/ui/JsonThemeConfig.h"
 #include "log.h"
 #include "network/KlipperApi.h"
 #include "network/WifiManager.h"
 #include "ui/Arc.h"
 #include "ui/DisplayHAL.h"
+#include "ui/JsonThemeConfig.h"
 #include "ui/ResourceImage.h"
 #include "ui/SceneDeps.h"
 #include "ui/SceneTimer.h"
@@ -61,7 +61,7 @@ public:
   }
 
   String nextScene() {
-    for (Transition& transition : this->config.transitions) {
+    for (Transition &transition : this->config.transitions) {
       // todo
       if (transition.condition == "false") {
         return transition.target.c_str();
@@ -71,18 +71,18 @@ public:
   }
 
   void tick() {
-    for(Arc *arc: arcs) {
+    for (Arc *arc : arcs) {
       // todo set value
       arc->setProgress(0);
       arc->tick(this->deps.displayHAL);
     }
 
-    for(ResourceImage *image: images) {
+    for (ResourceImage *image : images) {
       // todo set value
       image->tick(this->deps.displayHAL);
     }
 
-    for(TextLabel* label: labels) {
+    for (TextLabel *label : labels) {
       // todo set value
       String str = "abc";
       label->setText(str);

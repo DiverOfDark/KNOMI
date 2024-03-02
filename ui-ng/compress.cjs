@@ -41,6 +41,11 @@ ${addLineBreaks(BUNDLE_PAGE)}
 };
 `;
 
+FS.mkdir(
+    path.resolve(__dirname, "../src/generated/"),
+    { recursive: true },
+    () => {},
+);
 FS.writeFileSync(
     path.resolve(__dirname, "../src/generated/knomiWebpage.h"),
     FILE,
@@ -60,7 +65,7 @@ ${addLineBreaks(THEMECONFIG)}
 `;
 
 FS.writeFileSync(
-    path.resolve(__dirname, "../lib/generated/themeConfig.h"),
+    path.resolve(__dirname, "../src/generated/themeConfig.h"),
     FILE2,
 );
 console.log(
