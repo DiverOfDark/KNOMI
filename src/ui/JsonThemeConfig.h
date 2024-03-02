@@ -167,5 +167,5 @@ public:
     _config.apply(doc);
   }
 
-  ThemeConfig* getConfig() { return &_config; }
+  ThemeConfig *getConfig() { return &_config; }
 };

@@ -2,6 +2,9 @@
 #include "ArduinoJson.h"
 #include "StreamString.h"
 #include "WString.h"
+#include "map"
+#include "string"
+#include "ui/JsonThemeConfig.h"
 
 // conflicts with ESPAsyncWebServer
 namespace esp {
@@ -11,7 +14,7 @@ namespace esp {
 
 using namespace esp;
 
-class KlipperApiRequest {
+class KlipperApiRequestBase {
 private:
   String response = "";
   bool inProgress = false;
@@ -30,7 +33,7 @@ public:
 
   ulong getLastSuccessfullCall() const { return lastCall; }
 
-  KlipperApiRequest() {}
+  KlipperApiRequestBase() {}
 
   void Execute(String &klipper_ip) {
     if (inProgress) {
@@ -66,7 +69,7 @@ public:
   }
 
   static esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
-    auto kar = (KlipperApiRequest *)evt->user_data;
+    auto kar = (KlipperApiRequestBase *)evt->user_data;
     return kar->httpEventHandler(evt);
   }
 
@@ -136,5 +139,65 @@ public:
     }
     yield();
     return ESP_OK;
+  }
+};
+
+class KlipperApiRequest : public KlipperApiRequestBase {
+private:
+  String id;
+  String url;
+  std::map<String, String> variables;
+  std::vector<Variable> variablesConfig;
+
+public:
+  KlipperApiRequest(Request &requestConfig) {
+    this->id = requestConfig.id.c_str();
+    this->url = requestConfig.url.c_str();
+    this->variablesConfig = requestConfig.variables;
+  }
+
+  const char *getUrl() override { return this->url.c_str(); }
+
+  void processJson(ArduinoJson::JsonDocument &doc) override {
+    for (auto &var : variablesConfig) {
+      JsonVariant jsonObj = doc;
+      std::string s = var.path;
+      std::string delimiter = ".";
+
+      size_t pos = 0;
+      std::string token;
+
+      while ((pos = s.find(delimiter)) != std::string::npos) {
+        token = s.substr(0, pos);
+
+        if (!doc.containsKey(token.c_str())) {
+          LV_LOG_WARN("Couldn't find json path %s at %s", s.c_str(), token.c_str());
+          break;
+        }
+
+        jsonObj = jsonObj[token.c_str()];
+        s.erase(0, pos + delimiter.length());
+      }
+
+      String value = jsonObj.as<String>();
+
+      if (var.type == "double") {
+        value = String(jsonObj.as<double>());
+      } if (var.type == "boolean") {
+        value = String(jsonObj.as<bool>());
+      } if (var.type == "percentage") {
+        value = String(jsonObj.as<double>() * 100);
+      } else {
+        LV_LOG_WARN("Unknown json type %s at %s", var.type.c_str(), var.name.c_str());
+      }
+
+      if (var.stringFormat.has_value()) {
+        char format[256];
+        snprintf(format, 256, var.stringFormat.value().c_str(), value.c_str());
+        value = format;
+      }
+
+      variables[String(var.name.c_str())] = value.c_str();
+    }
   }
 };

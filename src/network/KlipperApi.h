@@ -2,52 +2,42 @@
 #include "../config/Config.h"
 #include "KlipperApiRequest.h"
 #include "log.h"
-#include "requests/HeatingAndOverallRequest.h"
-#include "requests/KnomiStatusRequest.h"
-#include "requests/PrintingRequest.h"
+#include "ui/JsonThemeConfig.h"
 #include <ArduinoJson.h>
 #include <queue>
+#include <vector>
 
 class KlipperApi {
 private:
   Config *config;
   ThemeConfig *themeConfig;
-
-  String text_print_file_name = "No Printfile"; // 打印文件名
-
-  HeatingAndOverallRequest req1;
-  PrintingRequest req2;
-  KnomiStatusRequest req3;
+  std::vector<KlipperApiRequest> requests;
 
 public:
-  KlipperApi(ThemeConfig* themeConfig, Config *config) {
+  KlipperApi(ThemeConfig *themeConfig, Config *config) {
     this->themeConfig = themeConfig;
     this->config = config;
+
+    std::for_each(themeConfig->requests.begin(), themeConfig->requests.end(),
+                  [&](const Request &item) { requests.push_back(KlipperApiRequest(item.id)); });
   }
 
-  String &getExtruderActualTemp() { return {req1.text_ext_actual_temp}; }
-  String &getExtruderTargetTemp() { return {req1.text_ext_target_temp}; }
-  String &getBedActualTemp() { return {req1.text_bed_actual_temp}; }
-  String &getBedTargetTemp() { return {req1.text_bed_target_temp}; }
-  int getProgressData() const { return req2.progress_data; }
-
-  bool isHoming() const { return req3.isHoming; }
-  bool isLeveling() const { return req3.isProbing; }
-  bool isQGLeveling() const { return req3.isQgling; }
-  bool isPrinting() const { return req1.print_status == 1; }
-  bool isHeatingBed() const { return req3.isHeatingBed; }
-  bool isHeatingNozzle() const { return req3.isHeatingNozzle; }
-
   ulong getLastSuccessfullCall() const {
-    ulong lastCall1 = req1.getLastSuccessfullCall();
-    ulong lastCall2 = req2.getLastSuccessfullCall();
-    ulong lastCall3 = req3.getLastSuccessfullCall();
-
-    return max(max(lastCall1, lastCall2), lastCall3);
+    ulong lastCall = 0;
+    for (auto &req : requests) {
+      ulong last = req.getLastSuccessfullCall();
+      if (last > lastCall) {
+        lastCall = last;
+      }
+    }
+    return lastCall;
   }
 
   bool isKlipperNotAvailable() {
-    int failCount = req1.getFailCount() + req2.getFailCount() + req3.getFailCount();
+    int failCount = 0;
+    for (auto &req : requests) {
+      failCount += req.getFailCount();
+    }
     return failCount > 3;
   }
 
@@ -55,9 +45,9 @@ public:
     if (config->isInitialised()) {
       String klipper_ip = config->getKlipperConfig()->getHost();
       klipper_ip.toLowerCase();
-      req1.Execute(klipper_ip);
-      req2.Execute(klipper_ip);
-      req3.Execute(klipper_ip);
+      for (auto &req : requests) {
+        req.Execute(klipper_ip);
+      }
     }
   }
 };

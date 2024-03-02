@@ -38,7 +38,6 @@
         {
           "name": "isPrinting",
           "type": "boolean",
-          "stringFormat": "%i C",
           "path": "state.flags.printing"
         },
         {
