@@ -6,7 +6,7 @@ const BUNDLE_PAGE = FS.readFileSync(
 );
 
 const THEMECONFIG = FS.readFileSync(
-    path.resolve(__dirname, "../lib/config.json"),
+    path.resolve(__dirname, "../src/config.json"),
 );
 
 function chunkArray(myArray, chunk_size) {
