@@ -19,17 +19,19 @@ private:
   int width = 0;
   int height = 0;
   ulong nextFrame = 0;
+  bool loop = true;
   bool playedTillEnd;
 
   // we don't own this
   DisplayHAL *currentHal;
 
 public:
-  ResourceImage(const String &filename, int x, int y) {
+  ResourceImage(const String &filename, int x, int y, bool loop) {
     this->playedTillEnd = false;
     this->filename = "/" + filename;
     this->x = x;
     this->y = y;
+    this->loop = loop;
 
     const char *szFilename = this->filename.c_str();
     gif = new AnimatedGIF();
@@ -52,6 +54,9 @@ public:
 
     this->currentHal = displayHal;
     ulong now = millis();
+
+    if (playedTillEnd && !loop)
+      return;
 
     if (nextFrame < now) {
       int delay = 0;

@@ -15,7 +15,6 @@ void Config::load() {
   } else {
     this->networkConfig = new NetworkConfig();
     this->klipperConfig = new KlipperConfig();
-    this->uiConfig = new UIConfig();
   }
 }
 

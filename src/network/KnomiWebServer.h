@@ -36,6 +36,7 @@ private:
 
   bool started = false;
   Config *config = nullptr;
+  ThemeConfig *theme = nullptr;
 
   UpdateProgress *progress = nullptr;
 
@@ -56,8 +57,9 @@ private:
   WebsocketLog *websocketPage = nullptr;
 
 public:
-  KnomiWebServer(Config *config, WifiManager *manager, UpdateProgress *progress) {
+  KnomiWebServer(Config *config, ThemeConfig *theme, WifiManager *manager, UpdateProgress *progress) {
     this->config = config;
+    this->theme = theme;
     this->manager = manager;
     this->progress = progress;
   }
@@ -108,9 +110,9 @@ public:
         this->apiScanNetworks = new ApiScanNetworks(server, manager);
         this->apiDumpHeapGet = new ApiDumpHeapGet(server);
         this->apiListFilesGet = new ApiListFilesGet(server);
-        this->apiStatusGet = new ApiStatusGet(config, server);
+        this->apiStatusGet = new ApiStatusGet(config, theme, server);
         this->apiCoreDumpGet = new ApiCoreDumpGet(server);
-        this->apiThemeConfigPost = new ApiThemeConfigPost(server, config->getUiConfig());
+        this->apiThemeConfigPost = new ApiThemeConfigPost(server, theme);
         this->apiUploadFileDelete = new ApiUploadFileDelete(server, progress);
         this->apiUploadFilePost = new ApiUploadFilePost(server, progress);
         this->apiConfigWifiPost = new ApiConfigWifiPost(manager, server, config);

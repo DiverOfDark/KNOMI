@@ -68,10 +68,10 @@ __attribute__((unused)) void setup() {
   klipperApi = new KlipperApi(themeConfig->getConfig(), config);
   LV_LOG_INFO("KlipperAPI started");
   progress = new UpdateProgress();
-  webServer = new KnomiWebServer(config, wifiManager, progress);
+  webServer = new KnomiWebServer(config, themeConfig->getConfig(), wifiManager, progress);
   LV_LOG_INFO("WebServer started");
-  sceneManager = new SceneManager(webServer, themeConfig->getConfig(), progress, klipperApi, wifiManager,
-                                  config->getUiConfig(), displayHAL, btn);
+  sceneManager =
+      new SceneManager(webServer, themeConfig->getConfig(), progress, klipperApi, wifiManager, displayHAL, btn);
   LV_LOG_INFO("SceneManager started");
   wifiManager->connectToWiFi();
   LV_LOG_INFO("Connected to wifi");

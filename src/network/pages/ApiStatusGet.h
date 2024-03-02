@@ -3,10 +3,13 @@
 
 class ApiStatusGet : public AbstractPage {
   Config *config;
+  ThemeConfig *theme;
 
 public:
-  explicit ApiStatusGet(Config *config, httpd_handle_t server) : AbstractPage(server, HTTP_GET, "/api/status") {
+  explicit ApiStatusGet(Config *config, ThemeConfig *theme, httpd_handle_t server)
+      : AbstractPage(server, HTTP_GET, "/api/status") {
     this->config = config;
+    this->theme = theme;
   }
 
   esp_err_t handler(httpd_req_t *req) override {
@@ -28,10 +31,8 @@ public:
       doc["ip"] = this->config->getKlipperConfig()->getHost();
     }
 
-    if (this->config->getUiConfig() != nullptr) {
-      doc["accentColor"] = String("#") + String(this->config->getUiConfig()->getAccentColor(), HEX);
-      doc["backgroundColor"] = String("#") + String(this->config->getUiConfig()->getBackgroundColor(), HEX);
-    }
+    doc["accentColor"] = String("#") + String(theme->variables.accentColor(), HEX);
+    doc["backgroundColor"] = String("#") + String(theme->variables.backgroundColor(), HEX);
 
     doc["ota_partition"] = String(esp_ota_get_running_partition()->label);
     multi_heap_info_t info;

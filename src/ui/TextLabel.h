@@ -1,6 +1,6 @@
 #pragma once
 #include "DisplayHAL.h"
-#include "config/UIConfig.h"
+#include "ui/JsonThemeConfig.h"
 
 #include "fonts/Montserrat_Regular20pt7b.h"
 #include "fonts/Montserrat_Regular32pt7b.h"
@@ -8,7 +8,7 @@
 enum fontSize { small, large };
 
 class TextLabel {
-  UIConfig *config;
+  ThemeConfig *config;
   fontSize size;
   int xOffset;
   int yOffset;
@@ -18,7 +18,7 @@ class TextLabel {
   bool shouldDraw = false;
 
 public:
-  explicit TextLabel(UIConfig *config, fontSize size, int xOffset, int yOffset) {
+  explicit TextLabel(ThemeConfig *config, fontSize size, int xOffset, int yOffset) {
     this->config = config;
     this->size = size;
     this->xOffset = xOffset;
@@ -37,8 +37,8 @@ public:
     if (!shouldDraw)
       return;
 
-    uint32_t color = config->getAccentColor();
-    uint32_t bgColor = DisplayHAL::toSpiColor(config->getBackgroundColor());
+    uint32_t color = config->variables.accentColor();
+    uint32_t bgColor = DisplayHAL::toSpiColor(config->variables.backgroundColor());
 
     hal->tft->startWrite();
 

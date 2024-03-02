@@ -27,9 +27,8 @@ private:
 
 public:
   explicit SceneManager(KnomiWebServer *webServer, ThemeConfig *themeConfig, UpdateProgress *progress,
-                        KlipperApi *klipperApi, WifiManager *manager, UIConfig *config, DisplayHAL *displayHAL,
-                        Button *btn)
-      : deps(klipperApi, progress, manager, webServer, config, displayHAL) {
+                        KlipperApi *klipperApi, WifiManager *manager, DisplayHAL *displayHAL, Button *btn)
+      : deps(klipperApi, progress, manager, webServer, themeConfig, displayHAL) {
     this->themeConfig = themeConfig;
     this->nextSceneId = themeConfig->startingScene.c_str();
     this->button = btn;
@@ -44,10 +43,8 @@ public:
   String getCurrentSceneId() { return currentSceneId; }
 
   void switchSceneIfRequired() {
-    if (nextSceneId.has_value()) {
+    if (nextSceneId.has_value() && !nextSceneId.value().isEmpty()) {
       LV_LOG_INFO("Deleting current scene");
-      String &string = nextSceneId.value();
-
       delete currentScene;
       currentScene = nullptr;
 
@@ -85,7 +82,7 @@ public:
 
     if (currentScene != nullptr && !nextSceneId.has_value()) {
       auto next = currentScene->nextScene();
-      if (next != nullptr) {
+      if (!next.isEmpty()) {
         nextSceneId = next;
       }
     }

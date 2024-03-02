@@ -25,9 +25,9 @@ struct Request {
     id = obj["id"].as<const char *>();
     url = obj["url"].as<const char *>();
     JsonArray variables = obj["variables"].as<JsonArray>();
-    for (int i = 0; i < variables.size(); i++) {
+    for (auto && variable : variables) {
       auto v = Variable();
-      v.apply(variables[i].as<JsonObject>());
+      v.apply(variable.as<JsonObject>());
       this->variables.push_back(v);
     }
   }
@@ -66,8 +66,8 @@ struct Content {
     size = toSize(obj["size"].as<const char *>());
     type = toType(obj["type"].as<const char *>());
     value = obj["value"].as<const char *>();
-    x = obj["x"].as<double>();
-    y = obj["y"].as<double>();
+    x = obj["x"].as<int>();
+    y = obj["y"].as<int>();
     file = obj["file"].as<const char *>();
     loop = obj["loop"].as<bool>();
     duration = obj["duration"].as<double>();
@@ -76,8 +76,8 @@ struct Content {
   std::optional<Size> size;
   Type type;
   std::optional<std::string> value;
-  std::optional<double> x;
-  std::optional<double> y;
+  std::optional<int> x;
+  std::optional<int> y;
   std::optional<std::string> file;
   std::optional<bool> loop;
   std::optional<double> duration;
@@ -98,19 +98,27 @@ struct Scene {
     id = obj["id"].as<const char *>();
     background = obj["background"].as<const char *>();
     JsonArray content = obj["content"].as<JsonArray>();
-    for (int i = 0; i < content.size(); i++) {
+    for (auto && i : content) {
       auto c = Content();
-      c.apply(content[i].as<JsonObject>());
+      c.apply(i.as<JsonObject>());
       this->content.push_back(c);
     }
     JsonArray transitions = obj["transitions"].as<JsonArray>();
-    for (int i = 0; i < transitions.size(); i++) {
+    for (auto && transition : transitions) {
       auto t = Transition();
-      t.apply(transitions[i].as<JsonObject>());
+      t.apply(transition.as<JsonObject>());
       this->transitions.push_back(t);
     }
   }
   std::optional<std::string> background;
+
+  std::optional<uint32_t> backgroundColor() {
+    if (!background.has_value())
+      return {};
+
+    return std::stoul(background.value(), nullptr, 16);
+  }
+
   std::vector<Content> content;
   std::string id;
   std::vector<Transition> transitions;
@@ -124,6 +132,14 @@ struct Variables {
 
   std::string background;
   std::string accent;
+
+  uint32_t accentColor() {
+    return std::stoul(accent, nullptr, 16);
+  }
+
+  uint32_t backgroundColor() {
+    return std::stoul(background, nullptr, 16);
+  }
 };
 
 struct ThemeConfig {
@@ -134,15 +150,15 @@ public:
     startingScene = doc["startingScene"].as<const char *>();
     accessPointConfig = doc["accessPointConfig"].as<const char *>();
     JsonArray requests = doc["requests"].as<JsonArray>();
-    for (int i = 0; i < requests.size(); i++) {
+    for (auto && request : requests) {
       auto req = Request();
-      req.apply(requests[i].as<JsonObject>());
+      req.apply(request.as<JsonObject>());
       this->requests.push_back(req);
     }
     JsonArray scenes = doc["scenes"].as<JsonArray>();
-    for (int i = 0; i < scenes.size(); i++) {
+    for (auto && i : scenes) {
       auto scene = Scene();
-      scene.apply(scenes[i].as<JsonObject>());
+      scene.apply(i.as<JsonObject>());
       this->scenes.push_back(scene);
     }
     this->variables.apply(doc["variables"].as<JsonObject>());

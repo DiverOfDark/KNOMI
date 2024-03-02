@@ -1,9 +1,8 @@
 #pragma once
 #include "DisplayHAL.h"
-#include "config/UIConfig.h"
 
 class Arc {
-  UIConfig *config;
+  ThemeConfig *config;
   int progress = 0;
   int thickness = 24;
 
@@ -12,7 +11,7 @@ class Arc {
   bool needDraw = false;
 
 public:
-  explicit Arc(UIConfig *config) {
+  explicit Arc(ThemeConfig *config) {
     this->config = config;
 
     // arc width = 16 or 24
@@ -32,9 +31,9 @@ public:
     if (!needDraw)
       return;
 
-    uint32_t color = config->getAccentColor();
+    uint32_t color = config->variables.accentColor();
     uint32_t fgColor = hal->toSpiColor(color);
-    uint32_t bgColor = hal->toSpiColor(config->getBackgroundColor());
+    uint32_t bgColor = hal->toSpiColor(config->variables.backgroundColor());
 
     int start = 180;
     int end = ((360 * progress) / 100 + 180) % 360;
