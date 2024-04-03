@@ -15,7 +15,12 @@ use std::io;
 
 fn main() -> Result<()> {
     miette::set_panic_hook();
-    env_logger::init();
+
+    let env = env_logger::Env::default()
+        .filter_or("KNOMI_LOG_LEVEL", "info");
+
+    env_logger::init_from_env(env);
+
     let build_info_str = include_str!("../resources/buildinfo.json");
 
     let build_info: BuildInfo = serde_json::from_str(build_info_str).unwrap();
