@@ -1,20 +1,26 @@
 use chrono::DateTime;
-use espflash;
-use log::{debug, error, info};
-use miette::{IntoDiagnostic, Result};
-use serde::{Deserialize};
-use std::io;
-use dialoguer::{Confirm, Select};
 use dialoguer::theme::ColorfulTheme;
+use dialoguer::{Confirm, Select};
+use espflash;
 use espflash::connection::reset::{ResetAfterOperation, ResetBeforeOperation};
 use espflash::error::Error;
 use espflash::flasher::{Flasher, ProgressCallbacks};
 use espflash::targets::Chip;
 use indicatif::{ProgressBar, ProgressStyle};
+use log::{debug, error, info};
+use miette::{IntoDiagnostic, Result};
+use serde::Deserialize;
 use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
+use std::io;
 
 fn main() -> Result<()> {
     miette::set_panic_hook();
+
+    let env = env_logger::Env::default()
+        .filter_or("KNOMI_LOG_LEVEL", "info");
+
+    env_logger::init_from_env(env);
+
     let build_info_str = include_str!("../resources/buildinfo.json");
 
     let build_info: BuildInfo = serde_json::from_str(build_info_str).unwrap();
@@ -60,7 +66,6 @@ Please put your KNOMI into flash mode (press button and connect cable).
             error!("Press Enter to exit");
             io::stdin().read_line(&mut user_input).unwrap();
         }
-
     } else {
         error!("Firmware flashing canceled.");
         std::process::exit(1); // Exit the program with an error code
@@ -109,7 +114,7 @@ fn flash_firmware() -> Result<(), Error> {
         false,
         Some(Chip::Esp32),
         ResetAfterOperation::HardReset,
-        ResetBeforeOperation::DefaultReset,
+        ResetBeforeOperation::NoReset,
     )?;
 
     let bytes = include_bytes!("../resources/firmware_full.bin");
@@ -198,9 +203,7 @@ fn detect_usb_serial_ports(list_all_ports: bool) -> Result<Vec<SerialPortInfo>> 
 }
 
 /// Ask the user to select a serial port from a list of detected serial ports.
-fn select_serial_port(
-    ports: Vec<SerialPortInfo>,
-) -> Result<SerialPortInfo, Error> {
+fn select_serial_port(ports: Vec<SerialPortInfo>) -> Result<SerialPortInfo, Error> {
     if ports.len() > 1 {
         // Multiple serial ports detected.
         info!("Detected {} serial ports", ports.len());
@@ -228,7 +231,7 @@ fn select_serial_port(
             let term = dialoguer::console::Term::stdout();
             let _ = term.show_cursor();
         })
-            .expect("Error setting Ctrl-C handler");
+        .expect("Error setting Ctrl-C handler");
 
         let index = Select::with_theme(&ColorfulTheme::default())
             .items(&port_names)
@@ -269,7 +272,7 @@ fn confirm_flash() -> Result<(), Error> {
         .map_err(|_| Error::Cancelled)?;
 
     if !confirm {
-        return Err(Error::Cancelled)
+        return Err(Error::Cancelled);
     }
     Ok(())
 }
