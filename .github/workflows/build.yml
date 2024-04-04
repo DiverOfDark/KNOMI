@@ -108,7 +108,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
             rustup target add aarch64-apple-darwin
-            cargo build --target aarch64-apple-darwin
+            cargo build --target aarch64-apple-darwin --release --manifest-path rs-flasher/Cargo.toml
 
       - name: Copy result
         if: matrix.os == 'windows-latest'
