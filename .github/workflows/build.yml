@@ -104,6 +104,12 @@ jobs:
       - name: Build Flasher
         run: cargo build --release --manifest-path rs-flasher/Cargo.toml
 
+      - name: Build Flasher (macOS Arm)
+        if: matrix.os == 'macos-latest'
+        run: |
+            rustup target add aarch64-apple-darwin
+            cargo build --target aarch64-apple-darwin
+
       - name: Copy result
         if: matrix.os == 'windows-latest'
         run: | 
@@ -114,7 +120,8 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: | 
             ls rs-flasher/target/release
-            cp rs-flasher/target/release/rs-flasher rs-flasher.macOS
+            cp rs-flasher/target/release/rs-flasher rs-flasher.macOS-amd64
+            cp rs-flasher/target/aarch64-apple-darwin/release/rs-flasher rs-flasher.macOS-arm64
 
       - name: Copy result
         if: matrix.os == 'ubuntu-latest'
@@ -128,7 +135,8 @@ jobs:
           name: flasher-${{matrix.os}}
           path: |
             rs-flasher.exe
-            rs-flasher.macOS
+            rs-flasher.macOS-amd64
+            rs-flasher.macOS-arm64
             rs-flasher.linux-amd64
 
   release:
@@ -174,4 +182,5 @@ jobs:
           ${{steps.download-firmware.outputs.download-path}}/littlefs.bin
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
-          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS
+          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64
+          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-arm64
