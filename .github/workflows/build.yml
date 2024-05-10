@@ -23,7 +23,7 @@ jobs:
           path: |
             ~/.npm
             ${{ github.workspace }}/ui-ng/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{matrix.device}}-npm-${{ hashFiles('**/package-lock.json') }}
 
       - name: Cache PIO
         uses: actions/cache@v4
@@ -32,7 +32,7 @@ jobs:
             ~/.platformio
             ~/.cache/pip
             ${{ github.workspace }}/.pio
-          key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+          key: ${{ runner.os }}-${{matrix.device}}-pio-${{ hashFiles('**/platformio.ini') }}
 
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
