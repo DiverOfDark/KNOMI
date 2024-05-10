@@ -158,7 +158,9 @@ jobs:
       id: download-firmware
       uses: actions/download-artifact@v4
       with:
-        name: firmware
+        pattern: firmware-*
+        merge-multiple: true
+
     - name: Download Flasher Files
       id: download-flasher
       uses: actions/download-artifact@v4
@@ -197,10 +199,14 @@ jobs:
 
           ${{steps.build_changelog.outputs.changelog}}
         files: | 
-          ${{steps.download-firmware.outputs.download-path}}/firmware_full.bin
-          ${{steps.download-firmware.outputs.download-path}}/firmware.bin
-          ${{steps.download-firmware.outputs.download-path}}/firmware.elf
-          ${{steps.download-firmware.outputs.download-path}}/littlefs.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware_full.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.elf
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/littlefs.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware_full.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.elf
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/littlefs.bin
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64
