@@ -28,11 +28,9 @@ fn main() -> Result<()> {
 
     env_logger::init_from_env(env);
 
-    let v1_build_info_str = include_str!("../resources/knomiv1/buildinfo.json");
-    let v2_build_info_str = include_str!("../resources/knomiv2/buildinfo.json");
+    let build_info_str = include_str!("../resources/buildinfo.json");
 
-    let v1_build_info: BuildInfo = serde_json::from_str(v1_build_info_str).unwrap();
-    let v2_build_info: BuildInfo = serde_json::from_str(v2_build_info_str).unwrap();
+    let build_info: BuildInfo = serde_json::from_str(build_info_str).unwrap();
 
     // Display the disclaimer
     let disclaimer = format!(
@@ -42,11 +40,7 @@ KNOMI Firmware Installer by DiverOfDark
 
 Firmware info: https://github.com/DiverOfDark/KNOMI
 
-Knomi V1 - Branch: {} ({})
-Source Timestamp: {}
-Binary Timestamp: {}
-
-Knomi V2 - Branch: {} ({})
+Branch: {} ({})
 Source Timestamp: {}
 Binary Timestamp: {}
 
@@ -56,14 +50,10 @@ This tool will flash alternative KNOMI firmware to your Device.
 Please put your KNOMI into flash mode (press button and connect cable).
 
 "#,
-        v1_build_info.branch,
-        v1_build_info.commit,
-        format_time(v1_build_info.commit_time),
-        format_time(v1_build_info.build_time),
-        v2_build_info.branch,
-        v2_build_info.commit,
-        format_time(v2_build_info.commit_time),
-        format_time(v2_build_info.build_time)
+        build_info.branch,
+        build_info.commit,
+        format_time(build_info.commit_time),
+        format_time(build_info.build_time)
     );
 
     println!("{}", disclaimer);
