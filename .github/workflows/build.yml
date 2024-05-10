@@ -59,7 +59,7 @@ jobs:
             mkdir ${{matrix.device}}
             cp .pio/build/${{matrix.device}}/buildinfo.json buildinfo.json
             cp .pio/build/${{matrix.device}}/firmware_full.bin ${{matrix.device}}/firmware_full.bin
-            cp .pio/build/${{matrix.device}}/firmware_full.bin ${{matrix.device}}/firmware_full.offset
+            cp .pio/build/${{matrix.device}}/firmware_full.offset ${{matrix.device}}/firmware_full.offset
             cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
             cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
             cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
