@@ -13,6 +13,7 @@ use serde::Deserialize;
 use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
 use std::io;
 use std::u32;
+use include_bytes_zstd::include_bytes_zstd;
 use crate::Device::{KnomiV1, KnomiV2};
 
 enum Device {
@@ -116,8 +117,8 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
         _ => unreachable!(),
     };
 
-    let v1_bytes = include_bytes!("../resources/knomiv1/firmware_full.bin");
-    let v2_bytes = include_bytes!("../resources/knomiv2/firmware_full.bin");
+    let v1_bytes = include_bytes_zstd!("resources/knomiv1/firmware_full.bin", 19);
+    let v2_bytes = include_bytes_zstd!("resources/knomiv2/firmware_full.bin", 19);
     let v1_offset = include_str!("../resources/knomiv1/firmware_full.offset");
     let v2_offset = include_str!("../resources/knomiv2/firmware_full.offset");
     let v1_offset_int = u32::from_str_radix(v1_offset.trim_start_matches("0x"), 16).unwrap();
@@ -192,7 +193,7 @@ impl ProgressCallbacks for EspflashProgress {
             .with_message(format!("{addr:#X}"))
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7} {msg}")
+                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7}")
                     .unwrap()
                     .progress_chars("=> "),
             );
