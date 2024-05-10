@@ -15,7 +15,7 @@ env.AddCustomTarget(
     title="generate_ui",
     description="Generate npm ui")
 
-propName = "custom_generateUI"
+propName = "custom_generateUI".lower()
 default = env.GetProjectConfig().get("env", propName)
 
 if not BUILD_TARGETS and env.GetProjectOption(propName, default) == "true":

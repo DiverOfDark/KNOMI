@@ -3,7 +3,6 @@
 #include "esp_timer.h"
 #include "log.h"
 #include "network/KlipperApi.h"
-#include "soc/rtc_wdt.h"
 
 class Watchdog {
 public:

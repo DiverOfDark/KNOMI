@@ -3,13 +3,9 @@
 #include "StreamString.h"
 #include "WString.h"
 
-// conflicts with ESPAsyncWebServer
-namespace esp {
+#include "esp_event_base.h"
 #include "esp_http_client.h"
 #include "esp_tls.h"
-} // namespace esp
-
-using namespace esp;
 
 class KlipperApiRequest {
 private:

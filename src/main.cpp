@@ -1,5 +1,6 @@
 #include "button/Button.h"
 #include "config/Config.h"
+#include "hal/pinout.h"
 #include "log.h"
 #include "network/KlipperApi.h"
 #include "network/KnomiWebServer.h"

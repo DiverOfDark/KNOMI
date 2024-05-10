@@ -6,7 +6,6 @@
 #include "scenes/AbstractScene.h"
 #include "scenes/BootupLogo.h"
 #include "scenes/SwitchSceneRequest.h"
-#include "soc/rtc_wdt.h"
 
 class SceneManager {
 private:

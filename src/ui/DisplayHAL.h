@@ -1,13 +1,8 @@
 #pragma once
-#include "AnimatedGIF.h"
-#include "TFT_eSPI.h"
-#include "Ticker.h"
-
-#define DISPLAY_WIDTH 240
-#define DISPLAY_HEIGHT 240
-
-#define CENTER_X 120
-#define CENTER_Y 120
+#include "hal/pinout.h"
+#include <AnimatedGIF.h>
+#include <TFT_eSPI.h>
+#include <Ticker.h>
 
 class DisplayHAL {
 public:
@@ -15,16 +10,19 @@ public:
   TFT_eSPI *tft;
 
   DisplayHAL() {
-    tft = new TFT_eSPI(240, 240);
+    tft = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     tft->init();
     tft->fillScreen(0);
+#if KNOMIV2
+    tft->invertDisplay(true);
+#endif
     tft->setRotation(0);
 
     pinMode(16, OUTPUT);
     digitalWrite(16, HIGH);
 
-    pinMode(2, OUTPUT);
-    digitalWrite(2, HIGH);
+    pinMode(LCD_BL_PIN, OUTPUT);
+    digitalWrite(LCD_BL_PIN, HIGH);
   }
 
   void setBackgroundColor(uint32_t color) { tft->fillScreen(toSpiColor(color)); }

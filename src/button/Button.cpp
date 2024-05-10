@@ -1,9 +1,10 @@
 #include "Button.h"
+#include "hal/pinout.h"
 
 Button::Button(WifiManager *mgr, Config *config) {
   this->config = config;
   this->manager = mgr;
-  pinMode(0, INPUT); // input mode; default -> high, pressed -> low.
+  pinMode(BOOT_PIN, INPUT); // input mode; default -> high, pressed -> low.
   delay(200);
   currentState = HIGH;
   lastState = HIGH;

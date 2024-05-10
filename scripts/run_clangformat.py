@@ -32,7 +32,7 @@ env.AddCustomTarget(
     title="clang-format",
     description="Executes Source Code Formatter")
 
-propName = "custom_clangFormat"
+propName = "custom_clangFormat".lower()
 default = env.GetProjectConfig().get("env", propName)
 
 if not BUILD_TARGETS and env.GetProjectOption(propName, default) == "true":

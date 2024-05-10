@@ -69,7 +69,7 @@ env.AddCustomTarget(
     title="generate_version",
     description="Generate version.h")
 
-propName = "custom_generateVersion"
+propName = "custom_generateVersion".lower()
 default = env.GetProjectConfig().get("env", propName)
 
 print("Current Build targets $PROGPATH")
