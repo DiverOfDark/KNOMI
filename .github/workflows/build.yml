@@ -44,35 +44,35 @@ jobs:
 
       - name: Build Firmware Core
         run: | 
-            pio run --disable-auto-clean -e ${{device}}
+            pio run --disable-auto-clean -e ${{matrix.device}}
 
       - name: Build Firmware LittleFS
         run: | 
-            pio run --disable-auto-clean -e ${{device}} -t buildfs
+            pio run --disable-auto-clean -e ${{matrix.device}} -t buildfs
 
       - name: Build Full Firmware
         run: | 
-            pio run --disable-auto-clean -e ${{device}} -t merge_firmware
+            pio run --disable-auto-clean -e ${{matrix.device}} -t merge_firmware
 
       - name: Prepare artifacts for archive 
         run: |
-            mkdir ${{device}}
-            cp .pio/build/${{device}}/buildinfo.json ${{device}}/buildinfo.json
-            cp .pio/build/${{device}}/firmware_full.bin ${{device}}/firmware_full.bin
-            cp .pio/build/${{device}}/firmware.bin ${{device}}/firmware.bin 
-            cp .pio/build/${{device}}/firmware.elf ${{device}}/firmware.elf
-            cp .pio/build/${{device}}/littlefs.bin ${{device}}/littlefs.bin
+            mkdir ${{matrix.device}}
+            cp .pio/build/${{matrix.device}}/buildinfo.json ${{matrix.device}}/buildinfo.json
+            cp .pio/build/${{matrix.device}}/firmware_full.bin ${{matrix.device}}/firmware_full.bin
+            cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
+            cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
+            cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
           
       - name: Archive Firmware Files
         uses: actions/upload-artifact@v4
         with: 
-          name: firmware-${{device}}
+          name: firmware-${{matrix.device}}
           path: |
-            ${{device}}/buildinfo.json
-            ${{device}}/firmware.bin
-            ${{device}}/firmware_full.bin
-            ${{device}}/firmware.elf
-            ${{device}}/littlefs.bin
+            ${{matrix.device}}/buildinfo.json
+            ${{matrix.device}}/firmware.bin
+            ${{matrix.device}}/firmware_full.bin
+            ${{matrix.device}}/firmware.elf
+            ${{matrix.device}}/littlefs.bin
 
   build-flasher:
     needs: build-firmware
