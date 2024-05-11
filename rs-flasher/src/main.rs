@@ -47,7 +47,7 @@ Binary Timestamp: {}
 
 ==================================================================
 
-This tool will flash alternative KNOMI firmware to your Device.
+This tool will flash alternative KNOMI firmware to your device.
 Please put your KNOMI into flash mode (press button and connect cable).
 
 "#,
