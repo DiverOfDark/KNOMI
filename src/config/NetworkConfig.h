@@ -1,34 +1,24 @@
 #pragma once
 #include "BaseConfig.h"
-#include <Preferences.h>
 
 class NetworkConfig : BaseConfig {
 private:
-  String ssid;
-  String psk;
-  String hostname;
+  JsonObject object;
 
 public:
-  NetworkConfig() {
-    this->configNamespace = "network-config";
-    this->load();
+  explicit NetworkConfig(JsonObject obj) {
+    LV_LOG_INFO("ctor");
+
+    this->object = obj;
+    defaultValue(object, "ssid", "");
+    defaultValue(object, "psk", "");
+    defaultValue(object, "hostname", "KNOMI");
   }
 
-  //   Used during migration
-  NetworkConfig(String ssid, String psk, String hostname) {
-    this->configNamespace = "network-config";
-    this->ssid = ssid;
-    this->psk = psk;
-    this->hostname = hostname;
-    this->save();
-  }
-
-  String getSsid() { return this->ssid; }
-  void setSsid(String ssid) { this->ssid = ssid; }
-  String getPsk() { return this->psk; }
-  void setPsk(String psk) { this->psk = psk; }
-  String getHostname() { return this->hostname; }
-  void setHostname(String hostname) { this->hostname = hostname; }
-  void save();
-  void load();
+  String getSsid() { return this->object["ssid"]; }
+  void setSsid(String ssid) { this->object["ssid"] = ssid; }
+  String getPsk() { return this->object["psk"]; }
+  void setPsk(String psk) { this->object["psk"] = psk; }
+  String getHostname() { return this->object["hostname"]; }
+  void setHostname(String hostname) { this->object["hostname"] = hostname; }
 };

@@ -53,12 +53,10 @@ public:
   }
 
   void refreshData() {
-    if (config->isInitialised()) {
-      String klipper_ip = config->getKlipperConfig()->getHost();
-      klipper_ip.toLowerCase();
-      req1.Execute(klipper_ip);
-      req2.Execute(klipper_ip);
-      req3.Execute(klipper_ip);
-    }
+    String klipper_ip = config->getKlipperConfig()->getHost();
+    klipper_ip.toLowerCase();
+    req1.Execute(klipper_ip);
+    req2.Execute(klipper_ip);
+    req3.Execute(klipper_ip);
   }
 };

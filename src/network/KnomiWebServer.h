@@ -111,7 +111,7 @@ public:
         this->apiListFilesGet = new ApiListFilesGet(server);
         this->apiStatusGet = new ApiStatusGet(config, server);
         this->apiCoreDumpGet = new ApiCoreDumpGet(server);
-        this->apiThemeConfigPost = new ApiThemeConfigPost(server, config->getUiConfig());
+        this->apiThemeConfigPost = new ApiThemeConfigPost(server, config);
         this->apiUploadFileDelete = new ApiUploadFileDelete(server, progress);
         this->apiUploadFilePost = new ApiUploadFilePost(server, progress);
         this->apiConfigWifiPost = new ApiConfigWifiPost(manager, server, config);

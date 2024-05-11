@@ -1,22 +1,21 @@
 #pragma once
 #include "BaseConfig.h"
-#include <Preferences.h>
 
 class UIConfig : BaseConfig {
 private:
-  uint32_t accentColor;
-  uint32_t backgroundColor;
+  JsonObject object;
 
 public:
-  UIConfig() {
-    this->configNamespace = "ui-config";
-    this->load();
+  UIConfig(JsonObject object) {
+    LV_LOG_INFO("ctor");
+    this->object = object;
+    defaultValue(object, "accentColor", 0xFF0000);
+    defaultValue(object, "backgroundColor", (uint32_t)0x000000);
   }
-  uint32_t getAccentColor() { return this->accentColor; }
-  void setAccentColor(uint32_t accentColor) { this->accentColor = accentColor; }
 
-  uint32_t getBackgroundColor() { return this->backgroundColor; }
-  void setBackgroundColor(uint32_t backgroundColor) { this->backgroundColor = backgroundColor; }
-  void save();
-  void load();
+  uint32_t getAccentColor() { return this->object["accentColor"]; }
+  void setAccentColor(uint32_t accentColor) { this->object["accentColor"] = accentColor; }
+
+  uint32_t getBackgroundColor() { return this->object["backgroundColor"]; }
+  void setBackgroundColor(uint32_t backgroundColor) { this->object["backgroundColor"] = backgroundColor; }
 };

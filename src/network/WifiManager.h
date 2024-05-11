@@ -62,7 +62,7 @@ public:
       ap = nullptr;
     }
 
-    if (networkConfig->getSsid().isEmpty() || !config->isInitialised()) {
+    if (networkConfig->getSsid().isEmpty()) {
       return;
     }
 

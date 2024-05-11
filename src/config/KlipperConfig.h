@@ -1,29 +1,20 @@
 #pragma once
 #include "BaseConfig.h"
-#include <Preferences.h>
 
 class KlipperConfig : BaseConfig {
-protected:
-  void load();
-
 private:
-  String host;
-  String apiKey;
+  JsonObject object;
 
 public:
-  KlipperConfig() {
-    this->configNamespace = "klipper-config";
-    this->load();
+  explicit KlipperConfig(JsonObject object) {
+    LV_LOG_INFO("ctor");
+    this->object = object;
+    defaultValue(object, "host", "");
+    defaultValue(object, "apiKey", "");
   }
-  KlipperConfig(String host, String apiKey) : KlipperConfig() {
-    this->host = host;
-    this->apiKey = apiKey;
-  }
-  String getHost() { return this->host; }
-  void setHost(String host) { this->host = host; }
-  String getApiKey() { return this->apiKey; }
-  void setApiKey(String apiKey) {
-    this->apiKey = apiKey;
-  } // TODO: Support setting klipper api key via UI + usage in req's
-  void save();
+
+  String getHost() { return this->object["host"]; }
+  void setHost(String host) { this->object["host"] = host; }
+  String getApiKey() { return this->object["apiKey"]; }
+  void setApiKey(String apiKey) { this->object["apiKey"] = apiKey; }
 };

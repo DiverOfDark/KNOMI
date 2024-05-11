@@ -1,14 +1,14 @@
 #pragma once
-#include "../../config/UIConfig.h"
+#include "../../config/Config.h"
 #include "AbstractPage.h"
 
 class ApiThemeConfigPost : public AbstractPage {
-  UIConfig *uiConfig;
+  Config *config;
 
 public:
-  explicit ApiThemeConfigPost(httpd_handle_t server, UIConfig *uiConfig)
+  explicit ApiThemeConfigPost(httpd_handle_t server, Config *uiConfig)
       : AbstractPage(server, HTTP_POST, "/api/themeConfig") {
-    this->uiConfig = uiConfig;
+    this->config = uiConfig;
   }
 
   esp_err_t handler(httpd_req_t *req) override {
@@ -35,14 +35,14 @@ public:
 
     if (newAccentColor != nullptr) {
       LV_LOG_INFO("Updating accentColor to: %s", newAccentColor.c_str());
-      uiConfig->setAccentColor(strtol(newAccentColor.c_str(), NULL, 16));
+      config->getUiConfig()->setAccentColor(strtol(newAccentColor.c_str(), NULL, 16));
     }
     if (newBackgroundColor != nullptr) {
       LV_LOG_INFO("Updating backgroundColor to: %s", newBackgroundColor.c_str());
-      uiConfig->setBackgroundColor(strtol(newBackgroundColor.c_str(), NULL, 16));
+      config->getUiConfig()->setBackgroundColor(strtol(newBackgroundColor.c_str(), NULL, 16));
     }
 
-    uiConfig->save();
+    config->save();
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "{result: \"ok\"}");
