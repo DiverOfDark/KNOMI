@@ -1,11 +1,12 @@
 # Compatibility
-Currently this firmware supports only KNOMI V1.
+Currently this firmware supports both KNOMI V1 and KNOMI V2.
 
 # Installation
 
 1. Please include "knomi.cfg" from repo to your klipper installation.
 You can comment out some sections if you don't have bed mesh or QGL.
-2. Download latest release from GitHub releases - it will guide you on first installation. You'll have to connect your KNOMI display directly to PC.
+2. Connect your KNOMI display directly to PC in flash mode (hold the button and then connect the cable).
+3. Download installer from latest release from GitHub releases - it will guide you on first installation. 
 
 # Upgrade
 
@@ -15,6 +16,18 @@ If major version changed (1.0.0 -> 2.0.0) - then you MUST update filesystem (the
 
 If minor version changed (1.0.0 -> 1.1.0) - then you can just upgrade firmware, all changes were backwards compatible.
 
+# Web UI screenshots
+
+## Setup page
+![Setup](screenshots/setup.png)
+
+## OTA page
+![OTA](screenshots/update.png)
+
+## Theme page
+![Theme List](screenshots/theme_list.png)
+![Theme Detail](screenshots/theme_detail.png)
+
 # Differences from original KNOMI Firmware
 
 ## Pros:
@@ -23,8 +36,8 @@ If minor version changed (1.0.0 -> 1.1.0) - then you can just upgrade firmware, 
  - All images are moved to second partition 
  - Code a lot cleaner, cut all factory-test stuff, switched back to official esp32-arduino platform
  - Nicer webui
- - Can change images using webui, without reflashing firmware
- - Any size of gifs are supported, even 240x240
+ - Can change images using webui without reflashing firmware
+ - Any size of gifs are supported on KNOMI V1, even 240x240
  - All communications are async - performance is better
 
 ## Cons:

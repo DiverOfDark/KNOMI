@@ -80,7 +80,7 @@
 
         interval = setTimeout(
             fetchNetworks,
-            networks.length == 0 ? 1000 : 10000,
+            !networks || networks.length == 0 ? 1000 : 10000,
         );
     }
 
@@ -658,8 +658,8 @@
         height: 16px;
         z-index: 100;
         position: relative;
-        top: -50px;
-        right: 24px;
+        top: -42px;
+        right: 20px;
     }
 
     nav a {

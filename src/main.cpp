@@ -53,6 +53,7 @@ __attribute__((unused)) void setup() {
 
   LV_LOG_INFO("Setup");
   LittleFS.begin();
+  delay(100);
   LV_LOG_INFO("LittleFS started");
   config = new Config();
   LV_LOG_INFO("Config created");

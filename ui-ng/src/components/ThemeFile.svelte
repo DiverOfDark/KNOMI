@@ -116,7 +116,7 @@
         <div>
             <h5>Original</h5>
             <img
-                src="https://github.com/DiverOfDark/KNOMI/raw/{hash}/Firmware/data/{filename}"
+                src="https://github.com/DiverOfDark/KNOMI/blob/{hash}/data/{filename}?raw=true"
                 alt="Original {filename}"
             />
         </div>
