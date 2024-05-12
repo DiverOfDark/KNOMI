@@ -179,7 +179,11 @@ jobs:
             "categories": [
               {
                   "title": "## 🚀 Features",
-                  "labels": ["feature"]
+                  "labels": ["feature", "enhancement" ]
+              },
+              {
+                  "title": "## 🐛 Bugs",
+                  "labels": ["bug" ]
               },
               {
                   "title": "## 📦 Dependencies",
@@ -187,6 +191,13 @@ jobs:
               }
             ]
           }
+    - name: Show files
+      run: |
+        echo download-firmware:
+        find ${{steps.download-firmware.outputs.download-path}}
+
+        echo download-flasher:
+        find ${{steps.download-flasher.outputs.download-path}}
 
     - name: Release
       uses: softprops/action-gh-release@v2
