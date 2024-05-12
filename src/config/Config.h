@@ -1,33 +1,73 @@
 #pragma once
 #include "BaseConfig.h"
 #include "KlipperConfig.h"
-#include "LegacyConfig.h"
 #include "NetworkConfig.h"
 #include "UIConfig.h"
-#include <Preferences.h>
-#include <nvs_flash.h>
+#include <LittleFS.h>
 
 class Config : BaseConfig {
 private:
-  bool initialised;
-  Preferences preferences;
-  NetworkConfig *networkConfig;
-  KlipperConfig *klipperConfig;
-  UIConfig *uiConfig;
+  const char *configPath = "/config.json";
 
-  void migrateLegacyConfig();
-  void load();
+  JsonDocument doc = JsonDocument();
+
+  NetworkConfig *networkConfig = nullptr;
+  KlipperConfig *klipperConfig = nullptr;
+  UIConfig *uiConfig = nullptr;
+
+  void init() {
+    delete networkConfig;
+    delete klipperConfig;
+    delete uiConfig;
+    JsonObject networkObject = object(doc, "network");
+    JsonObject klipperObject = object(doc, "klipper");
+    JsonObject uiObject = object(doc, "ui");
+    networkConfig = new NetworkConfig(networkObject);
+    klipperConfig = new KlipperConfig(klipperObject);
+    uiConfig = new UIConfig(uiObject);
+    String buffer;
+    serializeJson(doc, buffer);
+    LV_LOG_INFO(buffer.c_str());
+  }
 
 public:
   Config() {
-    this->configNamespace = "knomi";
-    this->load();
+    fs::File file = LittleFS.open(configPath, "r", true);
+    if (file) {
+      const String &fileString = file.readString();
+      LV_LOG_INFO("File:");
+      LV_LOG_INFO(fileString.c_str());
+      DeserializationError error = deserializeJson(doc, fileString.c_str());
+      if (error) {
+        LV_LOG_WARN("Failed to deserialize config: ");
+        LV_LOG_WARN(error.c_str());
+        doc.clear();
+      }
+    } else {
+      doc.to<JsonObject>();
+    }
+    file.close();
+    init();
   }
+
   NetworkConfig *getNetworkConfig() { return this->networkConfig; }
   KlipperConfig *getKlipperConfig() { return this->klipperConfig; }
   UIConfig *getUiConfig() { return this->uiConfig; }
-  bool isInitialised() { return this->initialised; }
-  void setInitialised() { this->initialised = true; }
-  void save();
-  void reset();
+
+  void reset() {
+    LV_LOG_INFO("reset");
+    LittleFS.remove(configPath);
+    doc.clear();
+    init();
+  }
+
+  void save() {
+    LV_LOG_INFO("save");
+    fs::File configFile = LittleFS.open(configPath, "w", true);
+    if (configFile) {
+      serializeJson(doc, configFile);
+      configFile.close();
+      LV_LOG_INFO("file saved");
+    }
+  }
 };

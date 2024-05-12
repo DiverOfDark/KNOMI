@@ -86,8 +86,7 @@ env.AddCustomTarget(
     title="generate_images",
     description="Generate images")
 
-propName = "custom_generateImages"
+propName =  "custom_generateImages".lower()
 default = env.GetProjectConfig().get("env", propName)
-
 if not BUILD_TARGETS and env.GetProjectOption(propName, default) == "true":
-    generate_images();
+    generate_images()

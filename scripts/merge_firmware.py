@@ -5,6 +5,7 @@ import os
 APP_BIN = os.path.join(env.subst("$BUILD_DIR") , "firmware.bin")
 FS_BIN = os.path.join(env.subst("$BUILD_DIR") , "littlefs.bin")
 MERGED_BIN = os.path.join(env.subst("$BUILD_DIR") , "firmware_full.bin")
+MERGED_BIN_START = os.path.join(env.subst("$BUILD_DIR") , "firmware_full.offset")
 BOARD_CONFIG = env.BoardConfig()
 
 # Define function to parse partitions from CSV
@@ -21,7 +22,8 @@ def parse_partitions(filename):
     return offsets
 
 def merge_firmware(*arg, **kwargs):
-    offsets = parse_partitions("partition.csv")
+    partitions_file = env.GetProjectOption("board_build.partitions", None)
+    offsets = parse_partitions(partitions_file)
 
      # The list contains all extra images (bootloader, partitions, eboot) and
     # the final application binary
@@ -71,11 +73,14 @@ def merge_firmware(*arg, **kwargs):
                 "--flash_size",
                 flash_size,
                 "--target-offset",
-                "0x1000"
+                flash_images[0]
             ]
             + flash_images
         )
     )
+
+    with open(MERGED_BIN_START, 'w+') as FILE:
+        FILE.write(flash_images[0])
 
 env.AddCustomTarget(
     "merge_firmware",

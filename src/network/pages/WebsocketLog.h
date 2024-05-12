@@ -10,7 +10,7 @@ public:
 
   esp_err_t handler(httpd_req_t *req) override {
     if (req->method == HTTP_GET) {
-      ESP_LOGI(TAG, "Handshake done, the new connection was opened");
+      LV_LOG_INFO("Handshake done, the new connection was opened");
       return ESP_OK;
     }
 

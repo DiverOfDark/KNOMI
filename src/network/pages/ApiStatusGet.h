@@ -17,6 +17,13 @@ public:
     doc["branch"] = Version::getGitBranch();
     doc["gitTimestamp"] = Version::getGitTimestamp();
     doc["buildTimestamp"] = Version::getBuildTimestamp();
+#if KNOMIV1
+    doc["device"] = "Knomi V1";
+#elif KNOMIV2
+    doc["device"] = "Knomi V2";
+#else
+#error "Unknown device"
+#endif
 
     if (this->config->getNetworkConfig() != nullptr) {
       doc["ssid"] = this->config->getNetworkConfig()->getSsid();

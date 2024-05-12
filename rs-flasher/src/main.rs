@@ -12,6 +12,14 @@ use miette::{IntoDiagnostic, Result};
 use serde::Deserialize;
 use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
 use std::io;
+use std::u32;
+use include_bytes_zstd::include_bytes_zstd;
+use crate::Device::{KnomiV1, KnomiV2};
+
+enum Device {
+    KnomiV1,
+    KnomiV2,
+}
 
 fn main() -> Result<()> {
     miette::set_panic_hook();
@@ -32,6 +40,7 @@ KNOMI Firmware Installer by DiverOfDark
 ==================================================================
 
 Firmware info: https://github.com/DiverOfDark/KNOMI
+
 Branch: {} ({})
 Source Timestamp: {}
 Binary Timestamp: {}
@@ -53,18 +62,21 @@ Please put your KNOMI into flash mode (press button and connect cable).
     let mut user_input = String::new();
 
     if confirm_flash().is_ok() {
-        let result = flash_firmware();
+        let device = select_device();
+        if device.is_ok() {
+            let result = flash_firmware(device.unwrap());
 
-        if result.is_ok() {
-            info!("Firmware flashing completed. Please unplug your KNOMI and plug it back.");
-            info!("Press Enter to exit");
-            io::stdin().read_line(&mut user_input).unwrap();
-        } else {
-            let string = result.unwrap_err().to_string();
-            error!("Firmware flashing error!");
-            error!("{}", string);
-            error!("Press Enter to exit");
-            io::stdin().read_line(&mut user_input).unwrap();
+            if result.is_ok() {
+                info!("Firmware flashing completed. Please unplug your KNOMI and plug it back.");
+                info!("Press Enter to exit");
+                io::stdin().read_line(&mut user_input).unwrap();
+            } else {
+                let string = result.unwrap_err().to_string();
+                error!("Firmware flashing error!");
+                error!("{}", string);
+                error!("Press Enter to exit");
+                io::stdin().read_line(&mut user_input).unwrap();
+            }
         }
     } else {
         error!("Firmware flashing canceled.");
@@ -75,7 +87,7 @@ Please put your KNOMI into flash mode (press button and connect cable).
     Ok(())
 }
 
-fn flash_firmware() -> Result<(), Error> {
+fn flash_firmware(device: Device) -> Result<(), Error> {
     let ports = detect_usb_serial_ports(true).unwrap_or_default();
     let port_info = select_serial_port(ports)?;
 
@@ -105,25 +117,52 @@ fn flash_firmware() -> Result<(), Error> {
         _ => unreachable!(),
     };
 
-    let mut flasher = Flasher::connect(
-        *Box::new(serial_port),
-        port_info,
-        Some(115200),
-        true,
-        true,
-        false,
-        Some(Chip::Esp32),
-        ResetAfterOperation::HardReset,
-        ResetBeforeOperation::NoReset,
-    )?;
+    let v1_bytes = include_bytes_zstd!("resources/knomiv1/firmware_full.bin", 19);
+    let v2_bytes = include_bytes_zstd!("resources/knomiv2/firmware_full.bin", 19);
+    let v1_offset = include_str!("../resources/knomiv1/firmware_full.offset");
+    let v2_offset = include_str!("../resources/knomiv2/firmware_full.offset");
+    let v1_offset_int = u32::from_str_radix(v1_offset.trim_start_matches("0x"), 16).unwrap();
+    let v2_offset_int = u32::from_str_radix(v2_offset.trim_start_matches("0x"), 16).unwrap();
 
-    let bytes = include_bytes!("../resources/firmware_full.bin");
+    if matches!(device, KnomiV1) {
+        let mut flasher = Flasher::connect(
+            *Box::new(serial_port),
+            port_info,
+            Some(115200),
+            true,
+            true,
+            false,
+            Some(Chip::Esp32),
+            ResetAfterOperation::HardReset,
+            ResetBeforeOperation::NoReset,
+        )?;
 
-    flasher.write_bin_to_flash(
-        0x1000,
-        &bytes.as_slice(),
-        Some(&mut EspflashProgress::default()),
-    )?;
+        flasher.write_bin_to_flash(
+            v1_offset_int,
+            &v1_bytes.as_slice(),
+            Some(&mut EspflashProgress::default()),
+        )?;
+    } else if matches!(device, KnomiV2) {
+        let mut flasher = Flasher::connect(
+            *Box::new(serial_port),
+            port_info,
+            Some(115200),
+            true,
+            true,
+            false,
+            Some(Chip::Esp32s3),
+            ResetAfterOperation::HardReset,
+            ResetBeforeOperation::DefaultReset,
+        )?;
+
+        flasher.write_bin_to_flash(
+            v2_offset_int,
+            &v2_bytes.as_slice(),
+            Some(&mut EspflashProgress::default()),
+        )?;
+    } else {
+        error!("Unsupported device");
+    }
     Ok(())
 }
 
@@ -154,7 +193,7 @@ impl ProgressCallbacks for EspflashProgress {
             .with_message(format!("{addr:#X}"))
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7} {msg}")
+                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7}")
                     .unwrap()
                     .progress_chars("=> "),
             );
@@ -202,6 +241,22 @@ fn detect_usb_serial_ports(list_all_ports: bool) -> Result<Vec<SerialPortInfo>> 
     Ok(ports)
 }
 
+fn select_device() -> Result<Device, Error> {
+    let index = Select::with_theme(&ColorfulTheme::default())
+        .item("Knomi V1")
+        .item("Knomi V2")
+        .default(0)
+        .interact_opt()
+        .map_err(|_| Error::Cancelled)?
+        .ok_or(Error::Cancelled)?;
+
+    match index {
+        0 => { Ok(KnomiV1) }
+        1 => Ok(KnomiV2),
+        _ => Err(Error::Cancelled)
+    }
+}
+
 /// Ask the user to select a serial port from a list of detected serial ports.
 fn select_serial_port(ports: Vec<SerialPortInfo>) -> Result<SerialPortInfo, Error> {
     if ports.len() > 1 {
@@ -231,7 +286,7 @@ fn select_serial_port(ports: Vec<SerialPortInfo>) -> Result<SerialPortInfo, Erro
             let term = dialoguer::console::Term::stdout();
             let _ = term.show_cursor();
         })
-        .expect("Error setting Ctrl-C handler");
+            .expect("Error setting Ctrl-C handler");
 
         let index = Select::with_theme(&ColorfulTheme::default())
             .items(&port_names)

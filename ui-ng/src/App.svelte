@@ -20,6 +20,7 @@
     var ip = "";
     var hostname = "";
     var hash = "";
+    var device = "";
     var branch = "";
     var gitTimestamp = "";
     var buildTimestamp = "";
@@ -54,6 +55,7 @@
         hostname = json.hostname;
         hash = json.hash;
         branch = json.branch;
+        device = json.device;
         gitTimestamp = new Date(json.gitTimestamp).toLocaleString();
         buildTimestamp = new Date(json.buildTimestamp).toLocaleString();
         accentColor = json.accentColor;
@@ -78,7 +80,7 @@
 
         interval = setTimeout(
             fetchNetworks,
-            networks.length == 0 ? 1000 : 10000,
+            !networks || networks.length == 0 ? 1000 : 10000,
         );
     }
 
@@ -595,7 +597,7 @@
         <hr />
         <p class="read-the-docs">
             <small>
-                Sincerely, your lovely Knomi display.<br />
+                Sincerely, your lovely {device} display.<br />
                 Firmware built from
                 <span data-tooltip="Commit {hash} from {gitTimestamp}"
                     ><b>{branch}</b> at <b>{buildTimestamp}</b></span
@@ -656,8 +658,8 @@
         height: 16px;
         z-index: 100;
         position: relative;
-        top: -50px;
-        right: 24px;
+        top: -42px;
+        right: 20px;
     }
 
     nav a {

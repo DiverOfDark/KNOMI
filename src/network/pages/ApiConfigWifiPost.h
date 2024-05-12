@@ -77,11 +77,6 @@ public:
       return ESP_OK;
     }
 
-    this->config->getNetworkConfig()->save();
-
-    this->config->setInitialised();
-    this->config->save();
-
     if (setKlipper) {
       this->config->getKlipperConfig()->setHost(klipper);
       LV_LOG_INFO("got KlipperIP: %s", klipper.c_str());
@@ -92,7 +87,7 @@ public:
       return ESP_OK;
     }
 
-    this->config->getKlipperConfig()->save();
+    this->config->save();
     delay(200);
 
     httpd_resp_set_type(req, "application/json");

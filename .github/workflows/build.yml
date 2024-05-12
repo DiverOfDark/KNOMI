@@ -8,6 +8,10 @@ on: [push, workflow_dispatch]
 jobs:
   build-firmware:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [knomiv1, knomiv2]
 
     steps:
       - name: Checkout sources
@@ -19,7 +23,7 @@ jobs:
           path: |
             ~/.npm
             ${{ github.workspace }}/ui-ng/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{matrix.device}}-npm-${{ hashFiles('**/package-lock.json') }}
 
       - name: Cache PIO
         uses: actions/cache@v4
@@ -28,7 +32,7 @@ jobs:
             ~/.platformio
             ~/.cache/pip
             ${{ github.workspace }}/.pio
-          key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+          key: ${{ runner.os }}-${{matrix.device}}-pio-${{ hashFiles('**/platformio.ini') }}
 
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
@@ -40,34 +44,37 @@ jobs:
 
       - name: Build Firmware Core
         run: | 
-            pio run --disable-auto-clean -e esp32dev
+            pio run --disable-auto-clean -e ${{matrix.device}}
 
       - name: Build Firmware LittleFS
         run: | 
-            pio run --disable-auto-clean -e esp32dev -t buildfs
+            pio run --disable-auto-clean -e ${{matrix.device}} -t buildfs
 
       - name: Build Full Firmware
         run: | 
-            pio run --disable-auto-clean -e esp32dev -t merge_firmware
+            pio run --disable-auto-clean -e ${{matrix.device}} -t merge_firmware
 
       - name: Prepare artifacts for archive 
-        run: | 
-            cp .pio/build/esp32dev/buildinfo.json buildinfo.json
-            cp .pio/build/esp32dev/firmware_full.bin firmware_full.bin
-            cp .pio/build/esp32dev/firmware.bin firmware.bin 
-            cp .pio/build/esp32dev/firmware.elf firmware.elf
-            cp .pio/build/esp32dev/littlefs.bin littlefs.bin
+        run: |
+            mkdir ${{matrix.device}}
+            cp .pio/build/${{matrix.device}}/buildinfo.json buildinfo.json
+            cp .pio/build/${{matrix.device}}/firmware_full.bin ${{matrix.device}}/firmware_full.bin
+            cp .pio/build/${{matrix.device}}/firmware_full.offset ${{matrix.device}}/firmware_full.offset
+            cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
+            cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
+            cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
           
       - name: Archive Firmware Files
         uses: actions/upload-artifact@v4
         with: 
-          name: firmware
+          name: firmware-${{matrix.device}}
           path: |
             buildinfo.json
-            firmware.bin
-            firmware_full.bin
-            firmware.elf
-            littlefs.bin
+            ${{matrix.device}}/firmware.bin
+            ${{matrix.device}}/firmware_full.bin
+            ${{matrix.device}}/firmware_full.offset
+            ${{matrix.device}}/firmware.elf
+            ${{matrix.device}}/littlefs.bin
 
   build-flasher:
     needs: build-firmware
@@ -96,10 +103,12 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Download Firmware Files
+        id: download-flasher
         uses: actions/download-artifact@v4
         with:
-          name: firmware
+          pattern: firmware-*
           path: rs-flasher/resources
+          merge-multiple: true
 
       - name: Build Flasher
         run: cargo build --release --manifest-path rs-flasher/Cargo.toml
@@ -151,7 +160,9 @@ jobs:
       id: download-firmware
       uses: actions/download-artifact@v4
       with:
-        name: firmware
+        pattern: firmware-*
+        merge-multiple: true
+
     - name: Download Flasher Files
       id: download-flasher
       uses: actions/download-artifact@v4
@@ -190,10 +201,14 @@ jobs:
 
           ${{steps.build_changelog.outputs.changelog}}
         files: | 
-          ${{steps.download-firmware.outputs.download-path}}/firmware_full.bin
-          ${{steps.download-firmware.outputs.download-path}}/firmware.bin
-          ${{steps.download-firmware.outputs.download-path}}/firmware.elf
-          ${{steps.download-firmware.outputs.download-path}}/littlefs.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware_full.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.elf
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1/littlefs.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware_full.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.elf
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2/littlefs.bin
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64

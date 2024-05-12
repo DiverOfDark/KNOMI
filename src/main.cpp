@@ -1,5 +1,6 @@
 #include "button/Button.h"
 #include "config/Config.h"
+#include "hal/pinout.h"
 #include "log.h"
 #include "network/KlipperApi.h"
 #include "network/KnomiWebServer.h"
@@ -52,6 +53,7 @@ __attribute__((unused)) void setup() {
 
   LV_LOG_INFO("Setup");
   LittleFS.begin();
+  delay(100);
   LV_LOG_INFO("LittleFS started");
   config = new Config();
   LV_LOG_INFO("Config created");
