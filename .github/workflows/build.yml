@@ -193,6 +193,9 @@ jobs:
           }
     - name: Show files
       run: |
+        zip -r knomiv1.zip knomiv1
+        zip -r knomiv2.zip knomiv2
+        
         echo download-firmware:
         find ${{steps.download-firmware.outputs.download-path}}
 
@@ -204,22 +207,22 @@ jobs:
       with:
         body: | 
           Files published:
-           - rs-flasher - Tool to update firmware on your KNOMI without installing any dependencies
-           - firmware_full.bin - Full image to be flashed by esptool 
-           - firmware.bin - OTA update
-           - firmware.elf - debug symbols
-           - littlefs.bin - partition with resources
+            - rs-flasher - Tool to update firmware on your KNOMI v1/v2 without installing any dependencies
+            - knomiv1.zip - Firmware for KNOMI v1
+                 - firmware_full.bin - Full image to be flashed by esptool 
+                 - firmware.bin - OTA update
+                 - firmware.elf - debug symbols
+                 - littlefs.bin - partition with resources
+            - knomiv2.zip - Firmware for KNOMI v2
+                 - firmware_full.bin - Full image to be flashed by esptool 
+                 - firmware.bin - OTA update
+                 - firmware.elf - debug symbols
+                 - littlefs.bin - partition with resources
 
           ${{steps.build_changelog.outputs.changelog}}
         files: | 
-          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware_full.bin
-          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.bin
-          ${{steps.download-firmware.outputs.download-path}}/knomiv1/firmware.elf
-          ${{steps.download-firmware.outputs.download-path}}/knomiv1/littlefs.bin
-          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware_full.bin
-          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.bin
-          ${{steps.download-firmware.outputs.download-path}}/knomiv2/firmware.elf
-          ${{steps.download-firmware.outputs.download-path}}/knomiv2/littlefs.bin
+          ${{steps.download-firmware.outputs.download-path}}/knomiv1.zip
+          ${{steps.download-firmware.outputs.download-path}}/knomiv2.zip
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
           ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64
