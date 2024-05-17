@@ -1,6 +1,24 @@
 # Compatibility
 Currently this firmware supports both KNOMI V1 and KNOMI V2.
 
+# Differences from original KNOMI Firmware
+
+## Pros:
+
+ - Firmware 2 times smaller, enabled OTA (in web browser knomi/update)
+ - All images are moved to second partition 
+ - Code a lot cleaner, cut all factory-test stuff, switched back to official esp32-arduino platform
+ - Nicer webui
+ - Can change images using webui without reflashing firmware
+ - Any size of gifs are supported on KNOMI V1, even 240x240
+ - All communications are async - performance is better
+
+## Cons:
+
+ - Based on Knomi V1 - meaning no touchscreen / menus on Knomi V2 devices.
+ - First setup on iOS is not that nice. Enter "http://KNOMI/" to open initial setup in Safari. On Android / Windows regular captivity portal should open.
+ - Unofficial fork - support is on best-effort basis
+
 # Installation
 
 1. Please include "knomi.cfg" from repo to your klipper installation.
@@ -27,23 +45,6 @@ If minor version changed (1.0.0 -> 1.1.0) - then you can just upgrade firmware, 
 ## Theme page
 ![Theme List](screenshots/theme_list.png)
 ![Theme Detail](screenshots/theme_detail.png)
-
-# Differences from original KNOMI Firmware
-
-## Pros:
-
- - Firmware 2 times smaller, enabled OTA (in web browser knomi/update)
- - All images are moved to second partition 
- - Code a lot cleaner, cut all factory-test stuff, switched back to official esp32-arduino platform
- - Nicer webui
- - Can change images using webui without reflashing firmware
- - Any size of gifs are supported on KNOMI V1, even 240x240
- - All communications are async - performance is better
-
-## Cons:
-
- - First setup on iOS is not that nice. Enter "http://KNOMI/" to open initial setup in Safari. On Android / Windows regular captivity portal should open.
- - Unofficial fork - support is on best-effort basis
 
 ## Development notes:
 
