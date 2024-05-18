@@ -108,8 +108,8 @@ jobs:
 
       - name: Prepare resources
         run: |
-            cp partitions.csv rs-flasher/resources/knomiv1/partitions.csv
-            cp partitions-v2.csv rs-flasher/resources/knomiv2/partitions.csv
+            cp partition.csv rs-flasher/resources/knomiv1/partition.csv
+            cp partition-v2.csv rs-flasher/resources/knomiv2/partition.csv
 
       - name: Build Flasher
         run: cargo build --release --manifest-path rs-flasher/Cargo.toml
