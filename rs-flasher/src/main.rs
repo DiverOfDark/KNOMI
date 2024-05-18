@@ -199,7 +199,7 @@ impl ProgressCallbacks for EspflashProgress {
             .with_message(format!("{addr:#X}"))
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7}")
+                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7} @ {msg}")
                     .unwrap()
                     .progress_chars("=> "),
             );
