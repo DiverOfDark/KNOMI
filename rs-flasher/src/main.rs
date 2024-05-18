@@ -12,13 +12,14 @@ use indicatif::{ProgressBar, ProgressStyle};
 use log::{debug, error, info};
 use miette::{IntoDiagnostic, Result};
 use serde::Deserialize;
-use serialport::{available_ports, COMPort, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
+use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
 use std::io;
 use std::u32;
 use espflash::elf::RomSegment;
 
 #[allow(unused_imports)]
 use std::io::Write;
+use espflash::connection::Port;
 use crate::segments::{Device, get_chip, get_segments};
 
 #[cfg(debug_assertions)]
@@ -152,7 +153,7 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
 }
 
 fn write_firmware(segments: Vec<RomSegment>,
-                  serial_port: COMPort,
+                  serial_port: Port,
                   port_info: UsbPortInfo,
                   chip: Chip) -> Result<(), Error> {
     info!("Connecting...");
