@@ -139,7 +139,7 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
 
     let chip = get_chip(&device);
 
-    info!("Going to chip {}", chip);
+    info!("Using chip {}", chip);
 
     let segments = get_segments(&device);
 
