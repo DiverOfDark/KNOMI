@@ -50,17 +50,13 @@ jobs:
         run: | 
             pio run --disable-auto-clean -e ${{matrix.device}} -t buildfs
 
-      - name: Build Full Firmware
-        run: | 
-            pio run --disable-auto-clean -e ${{matrix.device}} -t merge_firmware
-
-      - name: Prepare artifacts for archive 
+      - name: Prepare artifacts for archive
         run: |
             mkdir ${{matrix.device}}
             cp .pio/build/${{matrix.device}}/buildinfo.json buildinfo.json
-            cp .pio/build/${{matrix.device}}/firmware_full.bin ${{matrix.device}}/firmware_full.bin
-            cp .pio/build/${{matrix.device}}/firmware_full.offset ${{matrix.device}}/firmware_full.offset
             cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
+            cp .pio/build/${{matrix.device}}/partitions.bin ${{matrix.device}}/partitions.bin 
+            cp .pio/build/${{matrix.device}}/bootloader.bin ${{matrix.device}}/bootloader.bin 
             cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
             cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
           
@@ -71,8 +67,8 @@ jobs:
           path: |
             buildinfo.json
             ${{matrix.device}}/firmware.bin
-            ${{matrix.device}}/firmware_full.bin
-            ${{matrix.device}}/firmware_full.offset
+            ${{matrix.device}}/partitions.bin
+            ${{matrix.device}}/bootloader.bin
             ${{matrix.device}}/firmware.elf
             ${{matrix.device}}/littlefs.bin
 
@@ -109,6 +105,11 @@ jobs:
           pattern: firmware-*
           path: rs-flasher/resources
           merge-multiple: true
+
+      - name: Prepare resources
+        run: |
+            cp partition.csv rs-flasher/resources/knomiv1/partition.csv
+            cp partition-v2.csv rs-flasher/resources/knomiv2/partition.csv
 
       - name: Build Flasher
         run: cargo build --release --manifest-path rs-flasher/Cargo.toml

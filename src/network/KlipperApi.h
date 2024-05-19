@@ -12,8 +12,6 @@ class KlipperApi {
 private:
   Config *config;
 
-  String text_print_file_name = "No Printfile"; // 打印文件名
-
   HeatingAndOverallRequest req1;
   PrintingRequest req2;
   KnomiStatusRequest req3;
@@ -26,11 +24,6 @@ public:
   String &getBedActualTemp() { return {req1.text_bed_actual_temp}; }
   String &getBedTargetTemp() { return {req1.text_bed_target_temp}; }
   int getProgressData() const { return req2.progress_data; }
-
-  int getExtruderActualTempValue() const { return req1.tooltemp_actual; }
-  int getExtruderTargetTempValue() const { return req1.tooltemp_target; }
-  int getBedActualTempValue() const { return req1.bedtemp_actual; }
-  int getBedTargetTempValue() const { return req1.bedtemp_target; }
 
   bool isHoming() const { return req3.isHoming; }
   bool isLeveling() const { return req3.isProbing; }

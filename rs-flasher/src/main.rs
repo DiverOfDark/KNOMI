@@ -1,3 +1,5 @@
+mod segments;
+
 use chrono::DateTime;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::{Confirm, Select};
@@ -13,21 +15,40 @@ use serde::Deserialize;
 use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
 use std::io;
 use std::u32;
-use include_bytes_zstd::include_bytes_zstd;
-use crate::Device::{KnomiV1, KnomiV2};
+use espflash::elf::RomSegment;
 
-enum Device {
-    KnomiV1,
-    KnomiV2,
+#[allow(unused_imports)]
+use std::io::Write;
+use espflash::connection::Port;
+use crate::segments::{Device, get_chip, get_segments};
+
+#[cfg(debug_assertions)]
+fn setup_logger() {
+    let env = env_logger::Env::default().filter_or("KNOMI_LOG_LEVEL", "info");
+    env_logger::Builder::from_env(env).init();
+}
+
+#[cfg(not(debug_assertions))]
+fn setup_logger() {
+    let env = env_logger::Env::default().filter_or("KNOMI_LOG_LEVEL", "info");
+    env_logger::Builder::from_env(env)
+        .format(|buf, record| {
+            let style = buf.default_level_style(record.level());
+            let timestamp = buf.timestamp();
+            let level = record.level();
+            writeln!(
+                buf,
+                "[{timestamp} {level}]: {style}{}{style:#}",
+                record.args()
+            )
+        })
+        .init();
 }
 
 fn main() -> Result<()> {
     miette::set_panic_hook();
 
-    let env = env_logger::Env::default()
-        .filter_or("KNOMI_LOG_LEVEL", "info");
-
-    env_logger::init_from_env(env);
+    setup_logger();
 
     let build_info_str = include_str!("../resources/buildinfo.json");
 
@@ -93,7 +114,6 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
 
     // Attempt to open the serial port and set its initial baud rate.
     info!("Serial port: '{}'", port_info.port_name);
-    info!("Connecting...");
 
     let serial_port = serialport::new(&port_info.port_name, 115_200)
         .flow_control(FlowControl::None)
@@ -117,53 +137,40 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
         _ => unreachable!(),
     };
 
-    let v1_bytes = include_bytes_zstd!("resources/knomiv1/firmware_full.bin", 19);
-    let v2_bytes = include_bytes_zstd!("resources/knomiv2/firmware_full.bin", 19);
-    let v1_offset = include_str!("../resources/knomiv1/firmware_full.offset");
-    let v2_offset = include_str!("../resources/knomiv2/firmware_full.offset");
-    let v1_offset_int = u32::from_str_radix(v1_offset.trim_start_matches("0x"), 16).unwrap();
-    let v2_offset_int = u32::from_str_radix(v2_offset.trim_start_matches("0x"), 16).unwrap();
+    let chip = get_chip(&device);
 
-    if matches!(device, KnomiV1) {
-        let mut flasher = Flasher::connect(
-            *Box::new(serial_port),
-            port_info,
-            Some(115200),
-            true,
-            true,
-            false,
-            Some(Chip::Esp32),
-            ResetAfterOperation::HardReset,
-            ResetBeforeOperation::NoReset,
-        )?;
+    info!("Using chip {}", chip);
 
-        flasher.write_bin_to_flash(
-            v1_offset_int,
-            &v1_bytes.as_slice(),
-            Some(&mut EspflashProgress::default()),
-        )?;
-    } else if matches!(device, KnomiV2) {
-        let mut flasher = Flasher::connect(
-            *Box::new(serial_port),
-            port_info,
-            Some(115200),
-            true,
-            true,
-            false,
-            Some(Chip::Esp32s3),
-            ResetAfterOperation::HardReset,
-            ResetBeforeOperation::DefaultReset,
-        )?;
+    let segments = get_segments(&device);
 
-        flasher.write_bin_to_flash(
-            v2_offset_int,
-            &v2_bytes.as_slice(),
-            Some(&mut EspflashProgress::default()),
-        )?;
-    } else {
-        error!("Unsupported device");
+    for segment in &segments {
+        info!("Going to flash at 0x{:06X}: 0x{:06X} bytes", segment.addr, segment.data.len())
     }
+
+    write_firmware(segments, serial_port, port_info, chip)?;
+
     Ok(())
+}
+
+fn write_firmware(segments: Vec<RomSegment>,
+                  serial_port: Port,
+                  port_info: UsbPortInfo,
+                  chip: Chip) -> Result<(), Error> {
+    info!("Connecting...");
+    let mut flasher = Flasher::connect(
+        *Box::new(serial_port),
+        port_info,
+        Some(115200),
+        true,
+        true,
+        false,
+        Some(chip),
+        ResetAfterOperation::HardReset,
+        ResetBeforeOperation::NoReset,
+    )?;
+
+    info!("Flashing...");
+    flasher.write_bins_to_flash(segments.as_slice(), Some(&mut EspflashProgress::default()))
 }
 
 fn format_time(time: String) -> String {
@@ -193,7 +200,7 @@ impl ProgressCallbacks for EspflashProgress {
             .with_message(format!("{addr:#X}"))
             .with_style(
                 ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7}")
+                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7} @ {msg}")
                     .unwrap()
                     .progress_chars("=> "),
             );
@@ -243,16 +250,20 @@ fn detect_usb_serial_ports(list_all_ports: bool) -> Result<Vec<SerialPortInfo>> 
 
 fn select_device() -> Result<Device, Error> {
     let index = Select::with_theme(&ColorfulTheme::default())
-        .item("Knomi V1")
-        .item("Knomi V2")
+        .item("Knomi V1 - DiverOfDark")
+        .item("Knomi V2 - DiverOfDark")
+        .item("Knomi V1 - BTT Original FW")
+        .item("Knomi V2 - BTT Original FW")
         .default(0)
         .interact_opt()
         .map_err(|_| Error::Cancelled)?
         .ok_or(Error::Cancelled)?;
 
     match index {
-        0 => { Ok(KnomiV1) }
-        1 => Ok(KnomiV2),
+        0 => Ok(Device::KnomiV1),
+        1 => Ok(Device::KnomiV2),
+        2 => Ok(Device::BttV1),
+        3 => Ok(Device::BttV2),
         _ => Err(Error::Cancelled)
     }
 }
