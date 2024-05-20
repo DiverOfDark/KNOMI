@@ -13,9 +13,7 @@ public:
     tft = new TFT_eSPI(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     tft->init();
     tft->fillScreen(0);
-#if KNOMIV2
     tft->invertDisplay(true);
-#endif
     tft->setRotation(0);
 
     pinMode(16, OUTPUT);
