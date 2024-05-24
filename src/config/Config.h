@@ -66,6 +66,7 @@ public:
     fs::File configFile = LittleFS.open(configPath, "w", true);
     if (configFile) {
       serializeJson(doc, configFile);
+      configFile.flush();
       configFile.close();
       LV_LOG_INFO("file saved");
     }
