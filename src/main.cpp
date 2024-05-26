@@ -3,6 +3,7 @@
 #include "hal/pinout.h"
 #include "log.h"
 #include "network/KlipperApi.h"
+#include "network/KlipperStreaming.h"
 #include "network/KnomiWebServer.h"
 #include "network/WifiManager.h"
 #include "ui/DisplayHAL.h"
@@ -18,6 +19,7 @@ WifiManager *wifiManager = nullptr;
 Button *btn = nullptr;
 KnomiWebServer *webServer = nullptr;
 KlipperApi *klipperApi = nullptr;
+KlipperStreaming *klipperStreaming = nullptr;
 __attribute__((unused)) SceneManager *sceneManager = nullptr;
 DisplayHAL *displayHAL = nullptr;
 UpdateProgress *progress = nullptr;
@@ -48,12 +50,10 @@ void logToSerial(const char *logLevel, const char *file, int line, const char *f
 }
 
 __attribute__((unused)) void setup() {
-  Serial.begin(115200); // 波特率
-  delay(100);
-
   LV_LOG_INFO("Setup");
+  Serial.begin(115200);
   LittleFS.begin();
-  delay(100);
+  delay(200);
   LV_LOG_INFO("LittleFS started");
   config = new Config();
   LV_LOG_INFO("Config created");
@@ -65,6 +65,8 @@ __attribute__((unused)) void setup() {
   LV_LOG_INFO("DisplayHAL created");
   klipperApi = new KlipperApi(config);
   LV_LOG_INFO("KlipperAPI started");
+  klipperStreaming = new KlipperStreaming(config);
+  LV_LOG_INFO("KlipperStreaming started");
   progress = new UpdateProgress();
   webServer = new KnomiWebServer(config, wifiManager, progress);
   LV_LOG_INFO("WebServer started");
@@ -78,6 +80,8 @@ __attribute__((unused)) void setup() {
 
 __attribute__((unused)) void loop() {
   uint32_t nowtime = millis();
+
+  klipperStreaming->tick();
 
   if (nowtime > klipper_nexttime && WiFi.isConnected() && !progress->isInProgress) {
     klipperApi->refreshData();
