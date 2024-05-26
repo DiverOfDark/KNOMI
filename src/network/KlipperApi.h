@@ -1,55 +1,35 @@
 #pragma once
 #include "../config/Config.h"
+#include "KlipperStreaming.h"
 #include "log.h"
-#include "requests/HeatingAndOverallRequest.h"
-#include "requests/KlipperApiRequest.h"
-#include "requests/KnomiStatusRequest.h"
-#include "requests/PrintingRequest.h"
 #include <ArduinoJson.h>
 #include <queue>
 
 class KlipperApi {
 private:
   Config *config;
-
-  HeatingAndOverallRequest req1;
-  PrintingRequest req2;
-  KnomiStatusRequest req3;
+  KlipperStreaming *klipper;
 
 public:
-  KlipperApi(Config *config) { this->config = config; }
-
-  String &getExtruderActualTemp() { return {req1.text_ext_actual_temp}; }
-  String &getExtruderTargetTemp() { return {req1.text_ext_target_temp}; }
-  String &getBedActualTemp() { return {req1.text_bed_actual_temp}; }
-  String &getBedTargetTemp() { return {req1.text_bed_target_temp}; }
-  int getProgressData() const { return req2.progress_data; }
-
-  bool isHoming() const { return req3.isHoming; }
-  bool isLeveling() const { return req3.isProbing; }
-  bool isQGLeveling() const { return req3.isQgling; }
-  bool isPrinting() const { return req1.print_status == 1; }
-  bool isHeatingBed() const { return req3.isHeatingBed; }
-  bool isHeatingNozzle() const { return req3.isHeatingNozzle; }
-
-  ulong getLastSuccessfullCall() const {
-    ulong lastCall1 = req1.getLastSuccessfullCall();
-    ulong lastCall2 = req2.getLastSuccessfullCall();
-    ulong lastCall3 = req3.getLastSuccessfullCall();
-
-    return max(max(lastCall1, lastCall2), lastCall3);
+  KlipperApi(KlipperStreaming* klipperStreaming, Config *config) {
+    this->config = config;
+    this->klipper = klipperStreaming;
   }
 
-  bool isKlipperNotAvailable() {
-    int failCount = req1.getFailCount() + req2.getFailCount() + req3.getFailCount();
-    return failCount > 3;
-  }
+  String& getExtruderActualTemp() { return klipper->extruderTemperatureString; }
+  String& getExtruderTargetTemp() { return klipper->extruderTargetString; }
+  String& getBedActualTemp() { return klipper->bedTemperatureString; }
+  String& getBedTargetTemp() { return klipper->bedTargetString; }
+  int getProgressData() const { return (int) round(klipper->progress); }
 
-  void refreshData() {
-    String klipper_ip = config->getKlipperConfig()->getHost();
-    klipper_ip.toLowerCase();
-    req1.Execute(klipper_ip);
-    req2.Execute(klipper_ip);
-    req3.Execute(klipper_ip);
-  }
+  bool isHoming() const { return klipper->homing; }
+  bool isLeveling() const { return klipper->probing; }
+  bool isQGLeveling() const { return klipper->qgling; }
+  bool isPrinting() const { return klipper->isPrinting(); }
+  bool isHeatingBed() const { return klipper->heating_bed || klipper->bedTemperature + 3 < klipper->bedTarget; }
+  bool isHeatingNozzle() const { return klipper->heating_nozzle || klipper->extruderTemperature + 3 < klipper->extruderTarget; }
+
+  ulong getLastSuccessfullCall() const { return klipper->lastRequest; }
+
+  bool isKlipperNotAvailable() const { return !klipper->connected; }
 };

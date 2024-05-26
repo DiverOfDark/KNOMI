@@ -1,37 +1,16 @@
 #pragma once
 #include "../config/Config.h"
 #include "esp_websocket_client.h"
+#include <WiFi.h>
 
 class KlipperStreaming {
 private:
   Config *config;
   String uri;
   esp_websocket_client_handle_t client = nullptr;
-  unsigned long lastRequest = 0;
-  boolean connected = false;
-  boolean isReady = false;
-  boolean isSubscribed = false;
-  boolean reset = false;
-
-  float bedTemperature = 0;
-  float bedTarget = 0;
-  float extruderTemperature = 0;
-  float extruderTarget = 0;
-  float positionX = 0;
-  float positionY = 0;
-  float positionZ = 0;
-  float positionE = 0;
-  float filament_used = 0;
-  float progress = 0;
-
-  bool homing = false;
-  bool probing = false;
-  bool qgling = false;
-  bool heating_nozzle = false;
-  bool heating_bed = false;
-
-  String toolheadStatus;
-  String printState;
+  bool isReady = false;
+  bool isSubscribed = false;
+  bool reset = false;
 
   static void websocket_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     auto *self = (KlipperStreaming *)arg;
@@ -249,10 +228,12 @@ private:
   void updateHeaterBed(JsonObject &object) {
     if (object.containsKey("temperature")) {
       this->bedTemperature = object["temperature"].as<float>();
+      this->bedTemperatureString = formatTemperature(this->bedTemperature);
       LV_LOG_INFO("Heater bed temperature: %f", this->bedTemperature);
     }
     if (object.containsKey("target")) {
-      this->extruderTarget = object["target"].as<float>();
+      this->bedTarget = object["target"].as<float>();
+      this->bedTargetString = formatTemperature(this->bedTarget);
       LV_LOG_INFO("Bed target: %f", this->bedTarget);
     }
   }
@@ -260,15 +241,55 @@ private:
   void updateExtruder(JsonObject &object) {
     if (object.containsKey("temperature")) {
       this->extruderTemperature = object["temperature"].as<float>();
+      this->extruderTemperatureString = formatTemperature(this->extruderTemperature);
       LV_LOG_INFO("Extruder temperature: %f", this->extruderTemperature);
     }
     if (object.containsKey("target")) {
       this->extruderTarget = object["target"].as<float>();
+      this->extruderTargetString = formatTemperature(this->extruderTarget);
       LV_LOG_INFO("Extruder target: %f", this->extruderTarget);
     }
   }
 
+  static String formatTemperature(double value) {
+    String formatted = String(value, 2);
+    // TODO return degree (°) sign
+    return formatted + " C";
+  }
+
 public:
+  unsigned long lastRequest = 0;
+
+  bool connected = false;
+
+  float bedTemperature = 0;
+  float bedTarget = 0;
+  float extruderTemperature = 0;
+  float extruderTarget = 0;
+
+  String bedTemperatureString = "";
+  String bedTargetString = "";
+  String extruderTemperatureString = "";
+  String extruderTargetString = "";
+
+  float positionX = 0;
+  float positionY = 0;
+  float positionZ = 0;
+  float positionE = 0;
+  float filament_used = 0;
+  float progress = 0;
+
+  bool homing = false;
+  bool probing = false;
+  bool qgling = false;
+  bool heating_nozzle = false;
+  bool heating_bed = false;
+
+  String toolheadStatus;
+  String printState; // standby, printing, paused, error, complete
+
+  bool isPrinting() const { return printState == "printing"; };
+
   explicit KlipperStreaming(Config *config) {
     this->config = config;
     LV_LOG_INFO("Starting websocket client");

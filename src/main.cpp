@@ -26,7 +26,6 @@ UpdateProgress *progress = nullptr;
 Watchdog *watchDog = nullptr;
 
 uint32_t netcheck_nexttime = 0;
-uint32_t klipper_nexttime = 0;
 
 ulong lastLogTime;
 void logToSerial(const char *logLevel, const char *file, int line, const char *func, const char *format, ...) {
@@ -63,10 +62,10 @@ __attribute__((unused)) void setup() {
   LV_LOG_INFO("Timer and button created");
   displayHAL = new DisplayHAL();
   LV_LOG_INFO("DisplayHAL created");
-  klipperApi = new KlipperApi(config);
-  LV_LOG_INFO("KlipperAPI started");
   klipperStreaming = new KlipperStreaming(config);
   LV_LOG_INFO("KlipperStreaming started");
+  klipperApi = new KlipperApi(klipperStreaming, config);
+  LV_LOG_INFO("KlipperAPI started");
   progress = new UpdateProgress();
   webServer = new KnomiWebServer(config, wifiManager, progress);
   LV_LOG_INFO("WebServer started");
@@ -82,11 +81,6 @@ __attribute__((unused)) void loop() {
   uint32_t nowtime = millis();
 
   klipperStreaming->tick();
-
-  if (nowtime > klipper_nexttime && WiFi.isConnected() && !progress->isInProgress) {
-    klipperApi->refreshData();
-    klipper_nexttime = nowtime + 2000;
-  }
 
   if (nowtime > netcheck_nexttime) {
     wifiManager->tick();
