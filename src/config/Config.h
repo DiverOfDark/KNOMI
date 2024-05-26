@@ -32,7 +32,7 @@ private:
 
 public:
   Config() {
-    fs::File file = LittleFS.open(configPath, "r", true);
+    fs::File file = LittleFS.open(configPath, "r");
     if (file) {
       const String &fileString = file.readString();
       LV_LOG_INFO("File:");
@@ -44,6 +44,7 @@ public:
         doc.clear();
       }
     } else {
+      LV_LOG_INFO("No file loaded, creating new config");
       doc.to<JsonObject>();
     }
     file.close();
@@ -68,6 +69,7 @@ public:
       serializeJson(doc, configFile);
       configFile.flush();
       configFile.close();
+
       LV_LOG_INFO("file saved");
     }
   }
