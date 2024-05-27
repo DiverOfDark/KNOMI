@@ -342,6 +342,12 @@ public:
 
     if (millis() - lastRequest > 1000 && connected) {
       lastRequest = millis();
+      if (!esp_websocket_client_is_connected(client)) {
+        connected = false;
+        isSubscribed = false;
+        reset = true;
+        return;
+      }
       requestInfo();
     }
   }
