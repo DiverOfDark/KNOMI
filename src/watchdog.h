@@ -2,12 +2,12 @@
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
 #include "log.h"
-#include "network/KlipperApi.h"
+#include "network/KlipperStreaming.h"
 
 class Watchdog {
 public:
-  Watchdog(KlipperApi *api) {
-    this->api = api;
+  Watchdog(KlipperStreaming *streaming) {
+    this->streaming = streaming;
     xTaskCreatePinnedToCore(
         refreshSceneCallback, "checkWorking", 16000, /* Stack size in words */
         this,
@@ -16,10 +16,10 @@ public:
   }
 
 private:
-  KlipperApi *api;
+  KlipperStreaming *streaming;
 
   void tick() {
-    ulong lastTick = this->api->getLastSuccessfullCall();
+    ulong lastTick = this->streaming->lastRequest;
     ulong now = millis();
     // if more than 15 mins since last connect - reboot esp
     if (now - lastTick > 900000) {

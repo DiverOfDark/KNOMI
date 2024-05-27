@@ -21,7 +21,7 @@ public:
   }
 
   SwitchSceneRequest *NextScene() override {
-    if (!deps.klipperApi->isHeatingNozzle()) {
+    if (!deps.klipperStreaming->isHeatingExtruder()) {
       return new SwitchSceneRequest(deps, SceneId::Standby);
     }
 
@@ -29,8 +29,8 @@ public:
   }
 
   void Tick() override {
-    actualTemp->setText(deps.klipperApi->getExtruderActualTemp());
-    targetTemp->setText(deps.klipperApi->getExtruderTargetTemp());
+    actualTemp->setText(deps.klipperStreaming->extruderTemperatureString);
+    targetTemp->setText(deps.klipperStreaming->extruderTargetString);
 
     ri_ext->tick(deps.displayHAL);
     actualTemp->tick(deps.displayHAL);

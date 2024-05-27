@@ -13,17 +13,17 @@ public:
   ~StandbyScene() override { delete ri_standby; }
 
   SwitchSceneRequest *NextScene() override {
-    if (deps.klipperApi->isHoming())
+    if (deps.klipperStreaming->homing)
       return new SwitchSceneRequest(deps, SceneId::Homing);
-    else if (deps.klipperApi->isLeveling())
+    else if (deps.klipperStreaming->probing)
       return new SwitchSceneRequest(deps, SceneId::Leveling);
-    else if (deps.klipperApi->isQGLeveling())
+    else if (deps.klipperStreaming->qgling)
       return new SwitchSceneRequest(deps, SceneId::QGLeveling);
-    else if (deps.klipperApi->isHeatingBed())
+    else if (deps.klipperStreaming->isHeatingBed())
       return new SwitchSceneRequest(deps, SceneId::BedHeating);
-    else if (deps.klipperApi->isHeatingNozzle())
+    else if (deps.klipperStreaming->isHeatingExtruder())
       return new SwitchSceneRequest(deps, SceneId::ExtruderHeating);
-    else if (deps.klipperApi->isPrinting())
+    else if (deps.klipperStreaming->isPrinting())
       return new SwitchSceneRequest(deps, SceneId::BeforePrint);
     else if (ri_standby->isPlayedToEnd())
       return new SwitchSceneRequest(deps, SceneId::Voron);

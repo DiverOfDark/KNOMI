@@ -18,20 +18,21 @@ public:
   }
 
   SwitchSceneRequest *NextScene() override {
-    if (deps.klipperApi->isPrinting()) {
-      if (deps.klipperApi->getProgressData() == 100) {
-        if (timer == nullptr) {
-          timer = new SceneTimer(7000);
-        } else if (timer->isCompleted()) {
-          return new SwitchSceneRequest(deps, SceneId::Printing100Percent);
-        }
-      }
-    } else {
+    if (!deps.klipperStreaming->isPrinting()) {
       return new SwitchSceneRequest(deps, SceneId::Standby);
+    };
+
+    int progress = (int)round(deps.klipperStreaming->progress);
+    if (progress == 100) {
+      if (timer == nullptr) {
+        timer = new SceneTimer(7000);
+      } else if (timer->isCompleted()) {
+        return new SwitchSceneRequest(deps, SceneId::Printing100Percent);
+      }
     }
-    String result = String(deps.klipperApi->getProgressData()) + "%";
+    String result = String(progress) + "%";
     text->setText(result);
-    arc->setProgress(deps.klipperApi->getProgressData());
+    arc->setProgress(progress);
 
     return nullptr;
   }

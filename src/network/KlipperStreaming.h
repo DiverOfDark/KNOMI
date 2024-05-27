@@ -290,6 +290,10 @@ public:
 
   bool isPrinting() const { return printState == "printing"; };
 
+  bool isHeatingBed() const { return heating_bed || bedTemperature + 3 < bedTarget; };
+
+  bool isHeatingExtruder() const { return heating_nozzle || extruderTemperature + 3 < extruderTarget; };
+
   explicit KlipperStreaming(Config *config) {
     this->config = config;
     LV_LOG_INFO("Starting websocket client");

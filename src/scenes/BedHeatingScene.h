@@ -21,7 +21,7 @@ public:
   }
 
   SwitchSceneRequest *NextScene() override {
-    if (!deps.klipperApi->isHeatingBed()) {
+    if (!deps.klipperStreaming->isHeatingBed()) {
       return new SwitchSceneRequest(deps, SceneId::Standby);
     }
 
@@ -29,8 +29,8 @@ public:
   }
 
   void Tick() override {
-    actualTemp->setText(deps.klipperApi->getBedActualTemp());
-    targetTemp->setText(deps.klipperApi->getBedTargetTemp());
+    actualTemp->setText(deps.klipperStreaming->bedTemperatureString);
+    targetTemp->setText(deps.klipperStreaming->bedTargetString);
 
     ri_bed->tick(deps.displayHAL);
     actualTemp->tick(deps.displayHAL);

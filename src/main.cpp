@@ -2,7 +2,6 @@
 #include "config/Config.h"
 #include "hal/pinout.h"
 #include "log.h"
-#include "network/KlipperApi.h"
 #include "network/KlipperStreaming.h"
 #include "network/KnomiWebServer.h"
 #include "network/WifiManager.h"
@@ -18,7 +17,6 @@ Config *config = nullptr;
 WifiManager *wifiManager = nullptr;
 Button *btn = nullptr;
 KnomiWebServer *webServer = nullptr;
-KlipperApi *klipperApi = nullptr;
 KlipperStreaming *klipperStreaming = nullptr;
 __attribute__((unused)) SceneManager *sceneManager = nullptr;
 DisplayHAL *displayHAL = nullptr;
@@ -64,16 +62,14 @@ __attribute__((unused)) void setup() {
   LV_LOG_INFO("DisplayHAL created");
   klipperStreaming = new KlipperStreaming(config);
   LV_LOG_INFO("KlipperStreaming started");
-  klipperApi = new KlipperApi(klipperStreaming, config);
-  LV_LOG_INFO("KlipperAPI started");
   progress = new UpdateProgress();
   webServer = new KnomiWebServer(config, wifiManager, progress);
   LV_LOG_INFO("WebServer started");
-  sceneManager = new SceneManager(webServer, progress, klipperApi, wifiManager, config->getUiConfig(), displayHAL, btn);
+  sceneManager = new SceneManager(webServer, progress, klipperStreaming, wifiManager, config->getUiConfig(), displayHAL, btn);
   LV_LOG_INFO("SceneManager started");
   wifiManager->connectToWiFi();
   LV_LOG_INFO("Connected to wifi");
-  watchDog = new Watchdog(klipperApi);
+  watchDog = new Watchdog(klipperStreaming);
   LV_LOG_INFO("Watchdog started");
 }
 

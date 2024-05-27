@@ -25,9 +25,9 @@ private:
   }
 
 public:
-  explicit SceneManager(KnomiWebServer *webServer, UpdateProgress *progress, KlipperApi *klipperApi,
+  explicit SceneManager(KnomiWebServer *webServer, UpdateProgress *progress, KlipperStreaming *klipperStreaming,
                         WifiManager *manager, UIConfig *config, DisplayHAL *displayHAL, Button *btn)
-      : deps(klipperApi, progress, manager, webServer, config, displayHAL) {
+      : deps(klipperStreaming, progress, manager, webServer, config, displayHAL) {
     this->currentScene = new BootupLogoScene(deps);
     this->currentSceneId = SceneId::BootupLogo;
     this->button = btn;
@@ -63,7 +63,7 @@ public:
                this->getCurrentSceneId() != SceneId::BootupLogo) {
       switchSceneRequest = new SwitchSceneRequest(deps, SceneId::APConfig);
     } else if (WiFi.isConnected() && !button->isPressed()) {
-      if (deps.klipperApi->isKlipperNotAvailable() && this->getCurrentSceneId() != SceneId::NoKlipper) {
+      if (!deps.klipperStreaming->connected && this->getCurrentSceneId() != SceneId::NoKlipper) {
         switchSceneRequest = new SwitchSceneRequest(deps, SceneId::NoKlipper);
       }
     }
