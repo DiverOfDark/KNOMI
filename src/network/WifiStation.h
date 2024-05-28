@@ -1,5 +1,6 @@
 #pragma once
 #include "../config/NetworkConfig.h"
+#include <ESPmDNS.h>
 
 class WifiStation {
 private:
@@ -11,7 +12,12 @@ public:
     WiFi.setAutoReconnect(true);
     LV_LOG_INFO((String("Connecting to WIFI ") + config->getSsid() + " / " + config->getPsk()).c_str());
     WiFi.begin(config->getSsid(), config->getPsk());
+    MDNS.begin(config->getHostname().c_str());
   }
 
-  ~WifiStation() { WiFi.disconnect(true); }
+  ~WifiStation()
+  {
+    MDNS.end();
+    WiFi.disconnect(true);
+  }
 };

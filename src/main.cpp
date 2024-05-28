@@ -25,6 +25,8 @@ Watchdog *watchDog = nullptr;
 
 uint32_t netcheck_nexttime = 0;
 
+SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
+
 ulong lastLogTime;
 void logToSerial(const char *logLevel, const char *file, int line, const char *func, const char *format, ...) {
   va_list args;
@@ -39,8 +41,11 @@ void logToSerial(const char *logLevel, const char *file, int line, const char *f
            esp_get_free_heap_size(), pcTaskGetName(xTaskGetCurrentTaskHandle()), t / 1000, t % 1000, t - lastLogTime,
            func, msg, file, line);
   lastLogTime = t;
+  xSemaphoreTake(xMutex, portMAX_DELAY);
+  ets_printf(buf);
+  xSemaphoreGive(xMutex);
 
-  printf(buf);
+//printf(buf);
   if (webServer != nullptr) {
     webServer->websocketLog(buf);
   }
@@ -65,10 +70,10 @@ __attribute__((unused)) void setup() {
   progress = new UpdateProgress();
   webServer = new KnomiWebServer(config, wifiManager, progress);
   LV_LOG_INFO("WebServer started");
-  sceneManager = new SceneManager(webServer, progress, klipperStreaming, wifiManager, config->getUiConfig(), displayHAL, btn);
-  LV_LOG_INFO("SceneManager started");
   wifiManager->connectToWiFi();
   LV_LOG_INFO("Connected to wifi");
+  sceneManager = new SceneManager(webServer, progress, klipperStreaming, wifiManager, config->getUiConfig(), displayHAL, btn);
+  LV_LOG_INFO("SceneManager started");
   watchDog = new Watchdog(klipperStreaming);
   LV_LOG_INFO("Watchdog started");
 }

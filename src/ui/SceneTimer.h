@@ -2,13 +2,13 @@
 
 class SceneTimer {
 private:
-  int createdAt = millis();
-  int duration;
+  int endAt;
 
 public:
-  SceneTimer(int duration) { this->duration = duration; }
+  explicit SceneTimer(int duration) {
+    this->endAt = millis() + duration;
+    LV_LOG_INFO(("Created timer for " + String(endAt)).c_str());
+  }
 
-  int elapsed() { return millis() - createdAt; }
-
-  bool isCompleted() { return elapsed() >= duration; }
+  bool isCompleted() { return millis() >= endAt; }
 };

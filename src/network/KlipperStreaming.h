@@ -140,7 +140,7 @@ private:
   }
 
   void parseResponseObjects(const JsonObject &object) {
-    for(JsonPair iter: object) {
+    for (JsonPair iter : object) {
       String key = iter.key().c_str();
       JsonObject value = iter.value().as<JsonObject>();
       if (key == "extruder") {
@@ -296,13 +296,13 @@ public:
 
   explicit KlipperStreaming(Config *config) {
     this->config = config;
-    LV_LOG_INFO("Starting websocket client");
   }
 
   void start() {
     if (client != nullptr) {
       return;
     }
+    LV_LOG_INFO("Starting websocket client");
 
     this->uri = "ws://" + config->getKlipperConfig()->getHost() + "/websocket";
     esp_websocket_client_config_t websocket_cfg = {};
@@ -319,19 +319,32 @@ public:
 
   void stop() {
     if (client != nullptr) {
+      if (esp_websocket_client_is_connected(client)) {
+        esp_websocket_client_close(client, 1000);
+      }
       esp_websocket_client_stop(client);
       esp_websocket_client_destroy(client);
-
       client = nullptr;
+
+      connected = false;
+      isSubscribed = false;
     }
   }
 
   ~KlipperStreaming() { stop(); }
 
   void tick() {
+    if (millis() - lastRequest <= 1000)
+      return;
+
+    lastRequest = millis();
+
     if (reset) {
+      connected = false;
+      isSubscribed = false;
       reset = false;
       stop();
+      return;
     }
 
     if (WiFi.isConnected()) {
@@ -340,8 +353,7 @@ public:
       stop();
     }
 
-    if (millis() - lastRequest > 1000 && connected) {
-      lastRequest = millis();
+    if (connected) {
       if (!esp_websocket_client_is_connected(client)) {
         connected = false;
         isSubscribed = false;

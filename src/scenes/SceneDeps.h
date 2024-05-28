@@ -14,6 +14,7 @@ public:
   WifiManager *mgr = nullptr;
   UIConfig *styles = nullptr;
   DisplayHAL *displayHAL = nullptr;
+  KnomiWebServer *webServer = nullptr;
 
   SceneDeps(KlipperStreaming *streaming, UpdateProgress *progress, WifiManager *mgr, KnomiWebServer *webServer, UIConfig *styles,
             DisplayHAL *displayHAL) {
@@ -22,5 +23,6 @@ public:
     this->mgr = mgr;
     this->styles = styles;
     this->displayHAL = displayHAL;
+    this->webServer = webServer;
   }
 };
