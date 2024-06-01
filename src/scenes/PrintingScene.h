@@ -13,7 +13,7 @@ public:
     if (!ri_printing->isPlayedToEnd())
       return nullptr;
 
-    if (deps.klipperApi->isPrinting()) {
+    if (deps.klipperStreaming->isPrinting()) {
       return new SwitchSceneRequest(deps, SceneId::Printing1Percent);
     } else {
       return new SwitchSceneRequest(deps, SceneId::Standby);

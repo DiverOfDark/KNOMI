@@ -1,6 +1,6 @@
 #pragma once
 #include "../generated/images.h"
-#include "../network/KlipperApi.h"
+#include "../network/KlipperStreaming.h"
 #include "../network/WifiManager.h"
 #include "SwitchSceneRequest.h"
 #include "log.h"

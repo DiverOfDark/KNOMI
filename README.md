@@ -12,6 +12,7 @@ Currently this firmware supports both KNOMI V1 and KNOMI V2.
  - Can change images using webui without reflashing firmware
  - Any size of gifs are supported on KNOMI V1, even 240x240
  - All communications are async - performance is better
+ - Much faster react to klipper updates - thanks to websockets being used instead of polling.
 
 ## Cons:
 

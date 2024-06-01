@@ -35,7 +35,6 @@ private:
   httpd_handle_t server = nullptr;
   WifiManager *manager = nullptr;
 
-  bool started = false;
   Config *config = nullptr;
 
   UpdateProgress *progress = nullptr;
@@ -57,6 +56,8 @@ private:
   WebsocketLog *websocketPage = nullptr;
 
 public:
+  bool started = false;
+
   KnomiWebServer(Config *config, WifiManager *manager, UpdateProgress *progress) {
     this->config = config;
     this->manager = manager;
@@ -93,7 +94,6 @@ public:
 
   void tick() {
     if (!this->started) {
-      this->started = true;
       httpd_config_t httpdConfig = HTTPD_DEFAULT_CONFIG();
       httpdConfig.lru_purge_enable = true;
       httpdConfig.uri_match_fn = httpd_uri_match_wildcard;
@@ -120,6 +120,7 @@ public:
 
         this->websocketPage = new WebsocketLog(server);
         registerNotFound();
+        this->started = true;
       }
 
       LV_LOG_INFO("WebServer started!");

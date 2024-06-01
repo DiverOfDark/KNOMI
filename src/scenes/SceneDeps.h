@@ -1,6 +1,6 @@
 #pragma once
 
-class KlipperApi;
+class KlipperStreaming;
 class WifiManager;
 class KnomiWebServer;
 class UIConfig;
@@ -9,20 +9,20 @@ class UpdateProgress;
 
 struct SceneDeps {
 public:
-  KlipperApi *klipperApi = nullptr;
+  KlipperStreaming *klipperStreaming = nullptr;
   UpdateProgress *progress = nullptr;
   WifiManager *mgr = nullptr;
-  KnomiWebServer *webServer = nullptr;
   UIConfig *styles = nullptr;
   DisplayHAL *displayHAL = nullptr;
+  KnomiWebServer *webServer = nullptr;
 
-  SceneDeps(KlipperApi *api, UpdateProgress *progress, WifiManager *mgr, KnomiWebServer *webServer, UIConfig *styles,
-            DisplayHAL *displayHAL) {
-    this->klipperApi = api;
+  SceneDeps(KlipperStreaming *streaming, UpdateProgress *progress, WifiManager *mgr, KnomiWebServer *webServer,
+            UIConfig *styles, DisplayHAL *displayHAL) {
+    this->klipperStreaming = streaming;
     this->progress = progress;
     this->mgr = mgr;
-    this->webServer = webServer;
     this->styles = styles;
     this->displayHAL = displayHAL;
+    this->webServer = webServer;
   }
 };
