@@ -15,8 +15,7 @@ public:
     MDNS.begin(config->getHostname().c_str());
   }
 
-  ~WifiStation()
-  {
+  ~WifiStation() {
     MDNS.end();
     WiFi.disconnect(true);
   }

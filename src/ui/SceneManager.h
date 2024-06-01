@@ -56,26 +56,27 @@ public:
         if (WiFi.isConnected() && !button->isPressed() && !deps.klipperStreaming->connected &&
             currentSceneId != SceneId::NoKlipper && currentSceneId != SceneId::BootupLogo &&
             currentSceneId != SceneId::APConfig) {
-                    switchSceneRequest = new SwitchSceneRequest(deps, SceneId::NoKlipper);
-                    LV_LOG_INFO(("Switching to NoKlipper scene from " + String(currentSceneId)).c_str());
-                  }
+          switchSceneRequest = new SwitchSceneRequest(deps, SceneId::NoKlipper);
+          LV_LOG_INFO(("Switching to NoKlipper scene from " + String(currentSceneId)).c_str());
+        }
       }
     }
 
     if (switchSceneRequest == nullptr) {
       switchSceneRequest = currentScene->NextScene();
       if (switchSceneRequest != nullptr) {
-        LV_LOG_INFO(("Going to switch from " + String(currentSceneId) + " to " + String(switchSceneRequest->id)).c_str());
+        LV_LOG_INFO(
+            ("Going to switch from " + String(currentSceneId) + " to " + String(switchSceneRequest->id)).c_str());
       }
     }
 
     currentScene->Tick();
 
     if (switchSceneRequest != nullptr) {
-      LV_LOG_INFO(("Deleting current scene " + String(currentSceneId)).c_str());
+      LV_LOG_DEBUG(("Deleting current scene " + String(currentSceneId)).c_str());
       delete currentScene;
       currentScene = nullptr;
-      LV_LOG_INFO((String("Switching scene to ") + String(switchSceneRequest->id)).c_str());
+      LV_LOG_DEBUG((String("Switching scene to ") + String(switchSceneRequest->id)).c_str());
       currentScene = switchSceneRequest->Provide();
       currentSceneId = switchSceneRequest->id;
       delete switchSceneRequest;

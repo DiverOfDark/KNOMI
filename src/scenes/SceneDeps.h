@@ -9,15 +9,15 @@ class UpdateProgress;
 
 struct SceneDeps {
 public:
-  KlipperStreaming* klipperStreaming = nullptr;
+  KlipperStreaming *klipperStreaming = nullptr;
   UpdateProgress *progress = nullptr;
   WifiManager *mgr = nullptr;
   UIConfig *styles = nullptr;
   DisplayHAL *displayHAL = nullptr;
   KnomiWebServer *webServer = nullptr;
 
-  SceneDeps(KlipperStreaming *streaming, UpdateProgress *progress, WifiManager *mgr, KnomiWebServer *webServer, UIConfig *styles,
-            DisplayHAL *displayHAL) {
+  SceneDeps(KlipperStreaming *streaming, UpdateProgress *progress, WifiManager *mgr, KnomiWebServer *webServer,
+            UIConfig *styles, DisplayHAL *displayHAL) {
     this->klipperStreaming = streaming;
     this->progress = progress;
     this->mgr = mgr;

@@ -108,8 +108,21 @@ private:
     String method = doc["method"].as<String>();
     int id = doc["id"].as<int>();
 
-    if (method == "notify_proc_stat_update") {
-      LV_LOG_INFO("Frame complete: %s", method.c_str());
+    if (method == "notify_proc_stat_update" || method == "notify_service_state_changed" ||
+        method == "notify_filelist_changed" || method == "notify_gcode_response") {
+      LV_LOG_DEBUG("Frame complete: %s", method.c_str());
+      return;
+    }
+
+    if (method == "notify_klippy_disconected") {
+      LV_LOG_INFO("Klipper disconnected");
+      isReady = false;
+      return;
+    }
+
+    if (method == "notify_klippy_ready") {
+      LV_LOG_INFO("Klipper connected");
+      isReady = true;
       return;
     }
 
@@ -131,8 +144,12 @@ private:
       filter["result"]["state"] = true;
       deserializeJson(doc, buffer, DeserializationOption::Filter(filter));
       String state = doc["result"]["state"].as<String>();
-      isReady = state == "ready";
-      LV_LOG_INFO("State: %s", state.c_str());
+
+      bool newIsReady = state == "ready";
+      if (newIsReady != isReady) {
+        isReady = newIsReady;
+        LV_LOG_INFO("State: %s", state.c_str());
+      }
       return;
     }
 
@@ -166,7 +183,7 @@ private:
         }
       } else if (key == "virtual_sdcard") {
         if (value.containsKey("progress")) {
-          this->progress = value["progress"].as<float>();
+          this->progress = value["progress"].as<float>() * 100;
           LV_LOG_INFO("Progress: %f", this->progress);
         }
       } else if (key == "idle_timeout") {
@@ -227,27 +244,39 @@ private:
 
   void updateHeaterBed(JsonObject &object) {
     if (object.containsKey("temperature")) {
-      this->bedTemperature = object["temperature"].as<float>();
-      this->bedTemperatureString = formatTemperature(this->bedTemperature);
-      LV_LOG_INFO("Heater bed temperature: %f", this->bedTemperature);
+      float newTemperature = object["temperature"].as<float>();
+      if (abs(this->bedTemperature - newTemperature) > 0.15) {
+        this->bedTemperature = newTemperature;
+        this->bedTemperatureString = formatTemperature(this->bedTemperature);
+        LV_LOG_INFO("Heater bed temperature: %f", this->bedTemperature);
+      }
     }
     if (object.containsKey("target")) {
-      this->bedTarget = object["target"].as<float>();
-      this->bedTargetString = formatTemperature(this->bedTarget);
-      LV_LOG_INFO("Bed target: %f", this->bedTarget);
+      float newTemperature = object["target"].as<float>();
+      if (abs(this->bedTarget - newTemperature) > 0.15) {
+        this->bedTarget = newTemperature;
+        this->bedTargetString = formatTemperature(this->bedTarget);
+        LV_LOG_INFO("Bed target: %f", this->bedTarget);
+      }
     }
   }
 
   void updateExtruder(JsonObject &object) {
     if (object.containsKey("temperature")) {
-      this->extruderTemperature = object["temperature"].as<float>();
-      this->extruderTemperatureString = formatTemperature(this->extruderTemperature);
-      LV_LOG_INFO("Extruder temperature: %f", this->extruderTemperature);
+      float newTemperature = object["temperature"].as<float>();
+      if (abs(this->extruderTemperature - newTemperature) > 0.15) {
+        this->extruderTemperature = newTemperature;
+        this->extruderTemperatureString = formatTemperature(this->extruderTemperature);
+        LV_LOG_INFO("Extruder temperature: %f", this->extruderTemperature);
+      }
     }
     if (object.containsKey("target")) {
-      this->extruderTarget = object["target"].as<float>();
-      this->extruderTargetString = formatTemperature(this->extruderTarget);
-      LV_LOG_INFO("Extruder target: %f", this->extruderTarget);
+      float newTemperature = object["target"].as<float>();
+      if (abs(this->extruderTarget - newTemperature) > 0.15) {
+        this->extruderTarget = newTemperature;
+        this->extruderTargetString = formatTemperature(this->extruderTarget);
+        LV_LOG_INFO("Extruder target: %f", this->extruderTarget);
+      }
     }
   }
 
@@ -294,9 +323,7 @@ public:
 
   bool isHeatingExtruder() const { return heating_nozzle || extruderTemperature + 3 < extruderTarget; };
 
-  explicit KlipperStreaming(Config *config) {
-    this->config = config;
-  }
+  explicit KlipperStreaming(Config *config) { this->config = config; }
 
   void start() {
     if (client != nullptr) {
