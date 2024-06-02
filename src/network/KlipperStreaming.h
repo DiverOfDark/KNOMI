@@ -50,7 +50,13 @@ private:
                          "}";
     esp_websocket_client_send_text(client, printerInfo.c_str(), printerInfo.length(), portMAX_DELAY);
 
+    if (millis() - lastSubscribeUpdate > 30000 && isSubscribed) {
+      isSubscribed = false;
+      LV_LOG_WARN("Haven't received updates from subscription in a while. Going to resubscribe.");
+    }
+
     if (isReady && !isSubscribed) {
+      lastSubscribeUpdate = millis();
       isSubscribed = true;
       String subscribe = "{\n"
                          "    \"jsonrpc\": \"2.0\",\n"
@@ -134,6 +140,7 @@ private:
     }
 
     if (id == 5434) {
+      lastSubscribeUpdate = millis();
       deserializeJson(doc, buffer);
       JsonObject obj = doc["result"]["status"];
       parseResponseObjects(obj);
@@ -288,6 +295,7 @@ private:
 
 public:
   unsigned long lastRequest = 0;
+  unsigned long lastSubscribeUpdate = 0;
 
   bool connected = false;
 
