@@ -186,7 +186,7 @@ private:
         }
         if (value.containsKey("state")) {
           this->printState = value["state"].as<String>();
-          LV_LOG_INFO("State: %s", this->printState);
+          LV_LOG_INFO("State: %s", this->printState.c_str());
         }
       } else if (key == "virtual_sdcard") {
         if (value.containsKey("progress")) {
