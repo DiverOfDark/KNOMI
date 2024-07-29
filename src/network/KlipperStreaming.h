@@ -160,7 +160,7 @@ private:
       return;
     }
 
-    LV_LOG_INFO("Unexpected frame: %.*s", size, buffer);
+    // LV_LOG_INFO("Unexpected frame: %.*s", size, buffer);
   }
 
   void parseResponseObjects(const JsonObject &object) {
