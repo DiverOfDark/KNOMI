@@ -456,9 +456,9 @@ dependencies = [
 
 [[package]]
 name = "espflash"
-version = "3.1.0"
+version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ae94ed72994aee4c41142198ef915f9c35be9915f0b9c057c49b09bd1b4e099"
+checksum = "91a8eb94a67d80c4e2e127a5dbe39203ad1c36869f8337a6acc4c3f722176346"
 dependencies = [
  "base64",
  "bytemuck",
