@@ -1,15 +1,30 @@
-import eslintPluginSvelte from "eslint-plugin-svelte";
-import tseslint from 'typescript-eslint';
+import js from '@eslint/js';
+import ts from 'typescript-eslint';
+import svelte from 'eslint-plugin-svelte';
+import globals from 'globals';
+
+/** @type {import('eslint').Linter.FlatConfig[]} */
 export default [
-    // add more generic rule sets here, such as:
-    // js.configs.recommended,
-    ...eslintPluginSvelte.configs["flat/recommended"],
-    ...tseslint.configs.recommended,
+    js.configs.recommended,
+    ...ts.configs.recommended,
+    ...svelte.configs['flat/recommended'],
     {
-        rules: {
-            // override/add rules settings here, such as:
-            // 'svelte/rule-name': 'error'
-            semi: "error",
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node
+            }
         }
     },
+    {
+        files: ['**/*.svelte'],
+        languageOptions: {
+            parserOptions: {
+                parser: ts.parser
+            }
+        }
+    },
+    {
+        ignores: ['build/', 'dist/']
+    }
 ];
