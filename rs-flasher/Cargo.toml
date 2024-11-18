@@ -18,7 +18,7 @@ espflash = { version = "3.2.0", default-features = false, features = ["serialpor
 miette = { version = "7.2.0", features = ["fancy"] }
 log = "0.4.22"
 serde = "1.0.215"
-serde_json = "1.0.132"
+serde_json = "1.0.133"
 chrono = "0.4.38"
 dialoguer = "0.11.0"
 ctrlc = "3.4.5"
