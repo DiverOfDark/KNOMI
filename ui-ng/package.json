@@ -20,7 +20,7 @@
     },
     "devDependencies": {
         "@eslint/eslintrc": "^3.1.0",
-        "@eslint/js": "^9.14.0",
+        "@eslint/js": "^9.16.0",
         "@gfx/zopfli": "^1.0.14",
         "@sveltejs/vite-plugin-svelte": "^2.5.3",
         "@tsconfig/svelte": "^5.0.4",
