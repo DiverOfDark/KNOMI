@@ -15,7 +15,7 @@
     let fileInput: HTMLInputElement;
     let uploadInProgress = false;
     let uploadProgress = 0;
-    let selectedFileError: String | null = null;
+    let selectedFileError: string | null = null;
     let reloadIter = Math.random();
 
     function getExtension(filename: string) {
