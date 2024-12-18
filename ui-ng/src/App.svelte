@@ -29,7 +29,7 @@
     var isWifiFocused = false;
 
     var otaSuccess = false;
-    var otaError: String | null = null;
+    var otaError: string | null = null;
     var otaProgress = false;
     var otaPercentage = 0;
     var otaKind = "";
@@ -334,12 +334,12 @@
                             style="margin-bottom: 0"
                         />
                         {#if !networks.length}
-                            <span aria-busy="true" class="wifiLoading" />
+                            <span aria-busy="true" class="wifiLoading"></span>
                         {/if}
                         <details class="dropdown" bind:open={isWifiFocused}>
                             <summary
                                 style="display: none; margin: 0; padding:0;"
-                            />
+                            ></summary>
                             <ul>
                                 {#each networks as network}
                                     <li>
@@ -542,7 +542,8 @@
             </div>
         {:else if otaProgress}
             <h6>Update is in progress. Please do not close this page.</h6>
-            <progress value={otaPercentage} max="100" />{otaPercentage}%
+            <progress value={otaPercentage} max="100"
+            ></progress>{otaPercentage}%
         {:else}
             <h6>Select what you want to update:</h6>
             <form on:submit|preventDefault={otaUpdate}>

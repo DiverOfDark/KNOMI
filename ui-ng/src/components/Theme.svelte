@@ -101,26 +101,28 @@
                         <th scope="col">Size</th>
                     </tr>
                 </thead>
-                {#each filesList.files as file}
-                    <tr>
-                        <td
-                            ><a href="/theme/{file.name}" use:active
-                                >{file.name}</a
-                            ></td
-                        >
-                        <td
-                            >{file.size == -1
-                                ? "MISSING"
-                                : prettyBytes(file.size)}</td
-                        >
-                    </tr>
-                {/each}
+                <tbody>
+                    {#each filesList.files as file}
+                        <tr>
+                            <td
+                                ><a href="/theme/{file.name}" use:active
+                                    >{file.name}</a
+                                ></td
+                            >
+                            <td
+                                >{file.size == -1
+                                    ? "MISSING"
+                                    : prettyBytes(file.size)}</td
+                            >
+                        </tr>
+                    {/each}
+                </tbody>
             </table>
             <div></div>
         </Route>
 
         Used space {prettyBytes(filesList.used)} / {prettyBytes(
             filesList.total,
-        )} <progress value={filesList.used} max={filesList.total} />
+        )} <progress value={filesList.used} max={filesList.total}></progress>
     {/if}
 </div>
