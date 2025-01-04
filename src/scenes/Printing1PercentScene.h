@@ -82,7 +82,7 @@ public:
     }
 
     LV_LOG_INFO("Print Progress: %f method: %s", progress, method.c_str());
-    cachedProgress = round(progress);
+    cachedProgress = floor(progress);
     ticksUntilRefresh = 200;
     return cachedProgress;
   }
