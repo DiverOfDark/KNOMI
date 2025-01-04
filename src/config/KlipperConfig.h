@@ -19,5 +19,7 @@ public:
   String getApiKey() { return this->object["apiKey"]; }
   void setApiKey(String apiKey) { this->object["apiKey"] = apiKey; }
   String getPrintPercentageMethod() { return this->object["printPercentageMethod"]; }
-  void setPrintPercentageMethod(String printPercentageMethod) { this->object["printPercentageMethod"] = printPercentageMethod; }
+  void setPrintPercentageMethod(String printPercentageMethod) {
+    this->object["printPercentageMethod"] = printPercentageMethod;
+  }
 };
