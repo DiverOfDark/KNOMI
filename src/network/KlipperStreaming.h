@@ -111,6 +111,7 @@ private:
     isReady = false;
     isSubscribed = false;
     reset = true;
+    this->print_stats_filename = "";
   }
 
   char *buffer = nullptr;
