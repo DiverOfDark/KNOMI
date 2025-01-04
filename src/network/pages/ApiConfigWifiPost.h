@@ -28,6 +28,9 @@ public:
     String printProgressMethod;
     bool setPrintProgressMethod = false;
 
+    String skipStandbyAlternation;
+    bool setSkipStandbyAlternation = false;
+
     if (!streamReadMultipart(req, [&](const String &formData, const String &fn) {
           if (formData.equals("ssid")) {
             setSsid = true;
@@ -48,6 +51,10 @@ public:
           if (formData.equals("printProgressMethod")) {
             setPrintProgressMethod = true;
             return readString(&printProgressMethod);
+          }
+          if (formData.equals("skipStandbyAlternation")) {
+            setSkipStandbyAlternation = true;
+            return readString(&skipStandbyAlternation);
           }
           return (ReadCallback) nullptr;
         })) {
@@ -101,6 +108,16 @@ public:
       LV_LOG_INFO("error, not found printProgressMethod");
       httpd_resp_set_type(req, "application/json");
       httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"printProgressMethod is not found\"}");
+      return ESP_OK;
+    }
+
+    if (setSkipStandbyAlternation) {
+      this->config->getKlipperConfig()->setSkipStandbyAlternate(skipStandbyAlternation);
+      LV_LOG_INFO("got SkipStandbyAlternation: %s", skipStandbyAlternation.c_str());
+    } else {
+      LV_LOG_INFO("error, not found skipStandbyAlternation");
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"skipStandbyAlternation is not found\"}");
       return ESP_OK;
     }
 

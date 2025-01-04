@@ -25,7 +25,7 @@ public:
       return new SwitchSceneRequest(deps, SceneId::ExtruderHeating);
     else if (deps.klipperStreaming->isPrinting())
       return new SwitchSceneRequest(deps, SceneId::BeforePrint);
-    else if (ri_standby->isPlayedToEnd())
+    else if (!deps.klipperConfig->getSkipStandbyAlternate() && ri_standby->isPlayedToEnd())
       return new SwitchSceneRequest(deps, SceneId::Voron);
     else
       return nullptr;

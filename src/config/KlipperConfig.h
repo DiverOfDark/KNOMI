@@ -12,6 +12,7 @@ public:
     defaultValue(object, "host", "");
     defaultValue(object, "apiKey", "");
     defaultValue(object, "printPercentageMethod", "file-relative");
+    defaultValue(object, "skipStandbyAlternate", "false");
   }
 
   String getHost() { return this->object["host"]; }
@@ -21,5 +22,9 @@ public:
   String getPrintPercentageMethod() { return this->object["printPercentageMethod"]; }
   void setPrintPercentageMethod(String printPercentageMethod) {
     this->object["printPercentageMethod"] = printPercentageMethod;
+  }
+  bool getSkipStandbyAlternate() { return this->object["skipStandbyAlternate"] == "true"; }
+  void setSkipStandbyAlternate(String skipStandbyAlternate) {
+    this->object["skipStandbyAlternate"] = skipStandbyAlternate;
   }
 };

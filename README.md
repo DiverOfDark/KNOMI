@@ -13,7 +13,8 @@ Currently this firmware supports both KNOMI V1 and KNOMI V2.
  - Any size of gifs are supported on KNOMI V1, even 240x240
  - All communications are async - performance is better
  - Much faster react to klipper updates - thanks to websockets being used instead of polling.
- - Pick your preffered method of print completion percentage (file-relative, file-absolute, slicer, and filament) so Knomi matches mainsail and fluidd.
+ - Pick your preferred method of print completion percentage (file-relative, file-absolute, slicer, and filament) so Knomi matches mainsail and fluidd.
+ - Add an option to not alternate between two images during standby and use only one image - without a flicker!
 
 ## Cons:
 
