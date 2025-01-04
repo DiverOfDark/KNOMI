@@ -24,6 +24,7 @@
     var branch = "";
     var gitTimestamp = "";
     var buildTimestamp = "";
+    var printProgressMethod = "";
 
     var isSaving = false;
     var isWifiFocused = false;
@@ -60,6 +61,7 @@
         buildTimestamp = new Date(json.buildTimestamp).toLocaleString();
         accentColor = json.accentColor;
         backgroundColor = json.backgroundColor;
+        printProgressMethod = json.printProgressMethod;
         initWebSocket();
         checkForUpdates();
         fetchNetworks();
@@ -179,6 +181,7 @@
         data.append("ssid", ssid);
         data.append("pass", pass);
         data.append("klipper", ip);
+        data.append("printProgressMethod", printProgressMethod);
         data.append("hostname", hostname);
 
         const res = await fetch("/api/configwifi", {
@@ -400,6 +403,21 @@
                         type="text"
                         bind:value={hostname}
                     />
+                </label>
+                <label class="input">
+                    <span>Print Progress calculation method</span>
+                    <select
+                        disabled={isSaving || null}
+                        type="text"
+                        bind:value={printProgressMethod}
+                    >
+                        <option value="file-relative"
+                            >File Relative (default)</option
+                        >
+                        <option value="file-absolute">File Absolute</option>
+                        <option value="slicer">Slicer</option>
+                        <option value="filament">Filament</option>
+                    </select>
                 </label>
                 <button disabled={isSaving || null} type="submit">SAVE</button>
             </form>

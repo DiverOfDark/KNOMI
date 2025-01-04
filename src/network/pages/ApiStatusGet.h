@@ -33,6 +33,7 @@ public:
 
     if (this->config->getKlipperConfig() != nullptr) {
       doc["ip"] = this->config->getKlipperConfig()->getHost();
+      doc["printProgressMethod"] = this->config->getKlipperConfig()->getPrintPercentageMethod();
     }
 
     if (this->config->getUiConfig() != nullptr) {
