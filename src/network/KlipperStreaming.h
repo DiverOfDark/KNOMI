@@ -67,8 +67,9 @@ private:
                          "            \"toolhead\": [\"position\", \"status\"],\n"
                          "            \"extruder\": null,\n"
                          "            \"heater_bed\": null,\n"
-                         "            \"print_stats\":[\"state\",\"filament_used\"],"
-                         "            \"virtual_sdcard\":[\"progress\"],"
+                         "            \"print_stats\":[\"state\",\"filament_used\", \"filename\"],"
+                         "            \"virtual_sdcard\":[\"progress\", \"file_position\", \"is_active\"],"
+                         "            \"display_status\":[\"progress\"],"
                          "            \"idle_timeout\":[\"state\"],"
                          "            \"gcode_macro _KNOMI_STATUS\":null\n"
                          "        }\n"
@@ -78,6 +79,30 @@ private:
 
       esp_websocket_client_send_text(client, subscribe.c_str(), subscribe.length(), portMAX_DELAY);
     }
+
+    if (this->print_status_file_changed) {
+      this->print_status_file_changed = false;
+      this->requestFileMetadata();
+    }
+  }
+
+  void requestFileMetadata() {
+    LV_LOG_INFO("Requesting print metadata");
+
+    String fileMetadataRequest = "{\n"
+                                 "    \"id\": 66829,\n"
+                                 "    \"method\": \"server.files.metadata\",\n"
+                                 "    \"jsonrpc\": \"2.0\",\n"
+                                 "    \"params\": {\n"
+                                 "        \"filename\": \"" +
+                                 this->print_stats_filename +
+                                 "\"\n"
+                                 "    }\n"
+                                 "}";
+
+    if (this->print_stats_filename != "" && isReady && isSubscribed) {
+      esp_websocket_client_send_text(client, fileMetadataRequest.c_str(), fileMetadataRequest.length(), portMAX_DELAY);
+    }
   }
 
   void connectionLost() {
@@ -86,6 +111,7 @@ private:
     isReady = false;
     isSubscribed = false;
     reset = true;
+    this->print_stats_filename = "";
   }
 
   char *buffer = nullptr;
@@ -160,6 +186,25 @@ private:
       return;
     }
 
+    if (id == 66829) {
+      deserializeJson(doc, buffer);
+      if (doc.containsKey("result")) {
+        const JsonObject &result = doc["result"].as<JsonObject>();
+        if (result.containsKey("gcode_start_byte")) {
+          this->file_gcode_start_byte = result["gcode_start_byte"].as<int>();
+          LV_LOG_INFO("Gcode start byte: %i", this->file_gcode_start_byte);
+        }
+        if (result.containsKey("gcode_end_byte")) {
+          this->file_gcode_end_byte = result["gcode_end_byte"].as<int>();
+          LV_LOG_INFO("Gcode end byte: %i", this->file_gcode_end_byte);
+        }
+        if (result.containsKey("filament_total")) {
+          this->file_filament_total = result["filament_total"].as<float>();
+          LV_LOG_INFO("Filament total: %f", this->file_filament_total);
+        }
+      }
+      return;
+    }
     // LV_LOG_INFO("Unexpected frame: %.*s", size, buffer);
   }
 
@@ -188,10 +233,40 @@ private:
           this->printState = value["state"].as<String>();
           LV_LOG_INFO("State: %s", this->printState.c_str());
         }
+        if (value.containsKey("filename")) {
+          String newFilename = value["filename"].as<String>();
+
+          if (newFilename != this->print_stats_filename) {
+            this->print_stats_filename = newFilename;
+
+            // Prevent stale data causing us to report the print as complete
+            this->file_filament_total = 0;
+            this->file_gcode_end_byte = 0;
+            this->file_gcode_start_byte = 0;
+
+            this->print_status_file_changed = true;
+
+            LV_LOG_INFO("File changed, new filename: %s will trigger metadata fetch on next tick",
+                        this->print_stats_filename.c_str());
+          }
+        }
       } else if (key == "virtual_sdcard") {
         if (value.containsKey("progress")) {
-          this->progress = value["progress"].as<float>() * 100;
-          LV_LOG_INFO("Progress: %f", this->progress);
+          this->virtual_sdcard_progress = value["progress"].as<float>();
+          LV_LOG_INFO("Virtual SDCard Progress: %f", this->virtual_sdcard_progress);
+        }
+        if (value.containsKey("file_position")) {
+          this->virtual_sdcard_file_position = value["file_position"].as<int>();
+          LV_LOG_INFO("Virtual SDCard File Position: %f", this->virtual_sdcard_file_position);
+        }
+        if (value.containsKey("is_active")) {
+          this->virtual_sdcard_is_active = value["is_active"].as<bool>();
+          LV_LOG_INFO("Virtual SDCard Active: %i", this->virtual_sdcard_is_active);
+        }
+      } else if (key == "display_status") {
+        if (value.containsKey("progress")) {
+          this->display_status_progress = value["progress"].as<float>() * 100;
+          LV_LOG_INFO("Display Status Progress: %f", this->display_status_progress);
         }
       } else if (key == "idle_timeout") {
         // Do nothing
@@ -314,7 +389,15 @@ public:
   float positionZ = 0;
   float positionE = 0;
   float filament_used = 0;
-  float progress = 0;
+  float virtual_sdcard_progress = 0;
+  int virtual_sdcard_file_position = 0;
+  bool virtual_sdcard_is_active = false;
+  float display_status_progress = 0;
+  String print_stats_filename = "";
+  bool print_status_file_changed = false;
+  int file_gcode_start_byte = 0;
+  int file_gcode_end_byte = 0;
+  float file_filament_total = 0;
 
   bool homing = false;
   bool probing = false;

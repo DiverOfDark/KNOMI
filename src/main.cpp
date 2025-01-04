@@ -72,8 +72,8 @@ __attribute__((unused)) void setup() {
   LV_LOG_INFO("WebServer started");
   wifiManager->connectToWiFi();
   LV_LOG_INFO("Connected to wifi");
-  sceneManager =
-      new SceneManager(webServer, progress, klipperStreaming, wifiManager, config->getUiConfig(), displayHAL, btn);
+  sceneManager = new SceneManager(webServer, progress, klipperStreaming, wifiManager, config->getUiConfig(),
+                                  config->getKlipperConfig(), displayHAL, btn);
   LV_LOG_INFO("SceneManager started");
   watchDog = new Watchdog(klipperStreaming);
   LV_LOG_INFO("Watchdog started");

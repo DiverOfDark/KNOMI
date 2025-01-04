@@ -25,8 +25,9 @@ private:
 
 public:
   explicit SceneManager(KnomiWebServer *webServer, UpdateProgress *progress, KlipperStreaming *klipperStreaming,
-                        WifiManager *manager, UIConfig *config, DisplayHAL *displayHAL, Button *btn)
-      : deps(klipperStreaming, progress, manager, webServer, config, displayHAL) {
+                        WifiManager *manager, UIConfig *config, KlipperConfig *klipperConfig, DisplayHAL *displayHAL,
+                        Button *btn)
+      : deps(klipperStreaming, progress, manager, webServer, config, displayHAL, klipperConfig) {
     this->currentScene = new BootupLogoScene(deps);
     this->currentSceneId = SceneId::BootupLogo;
     this->button = btn;

@@ -25,6 +25,9 @@ public:
     String klipper;
     bool setKlipper = false;
 
+    String printProgressMethod;
+    bool setPrintProgressMethod = false;
+
     if (!streamReadMultipart(req, [&](const String &formData, const String &fn) {
           if (formData.equals("ssid")) {
             setSsid = true;
@@ -41,6 +44,10 @@ public:
           if (formData.equals("klipper")) {
             setKlipper = true;
             return readString(&klipper);
+          }
+          if (formData.equals("printProgressMethod")) {
+            setPrintProgressMethod = true;
+            return readString(&printProgressMethod);
           }
           return (ReadCallback) nullptr;
         })) {
@@ -84,6 +91,16 @@ public:
       LV_LOG_INFO("error, not found klipper ip");
       httpd_resp_set_type(req, "application/json");
       httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"KLIPPER is not found\"}");
+      return ESP_OK;
+    }
+
+    if (setPrintProgressMethod) {
+      this->config->getKlipperConfig()->setPrintPercentageMethod(printProgressMethod);
+      LV_LOG_INFO("got PrintProgressMethod: %s", printProgressMethod.c_str());
+    } else {
+      LV_LOG_INFO("error, not found printProgressMethod");
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"printProgressMethod is not found\"}");
       return ESP_OK;
     }
 
