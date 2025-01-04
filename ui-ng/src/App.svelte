@@ -25,6 +25,7 @@
     var gitTimestamp = "";
     var buildTimestamp = "";
     var printProgressMethod = "";
+    var skipStandbyAlternation = false;
 
     var isSaving = false;
     var isWifiFocused = false;
@@ -62,6 +63,7 @@
         accentColor = json.accentColor;
         backgroundColor = json.backgroundColor;
         printProgressMethod = json.printProgressMethod;
+        skipStandbyAlternation = json.skipStandbyAlternation;
         initWebSocket();
         checkForUpdates();
         fetchNetworks();
@@ -182,6 +184,10 @@
         data.append("pass", pass);
         data.append("klipper", ip);
         data.append("printProgressMethod", printProgressMethod);
+        data.append(
+            "skipStandbyAlternation",
+            skipStandbyAlternation.toString(),
+        );
         data.append("hostname", hostname);
 
         const res = await fetch("/api/configwifi", {
@@ -419,6 +425,18 @@
                         <option value="filament">Filament</option>
                     </select>
                 </label>
+                <label class="input">
+                    <input
+                        type="checkbox"
+                        bind:checked={skipStandbyAlternation}
+                        content="123"
+                    />
+                    <span
+                        >Skip alternating standby and voron images during
+                        standby</span
+                    >
+                </label>
+                <br/>
                 <button disabled={isSaving || null} type="submit">SAVE</button>
             </form>
         </div>

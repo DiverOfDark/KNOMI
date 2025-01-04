@@ -34,6 +34,7 @@ public:
     if (this->config->getKlipperConfig() != nullptr) {
       doc["ip"] = this->config->getKlipperConfig()->getHost();
       doc["printProgressMethod"] = this->config->getKlipperConfig()->getPrintPercentageMethod();
+      doc["skipStandbyAlternation"] = this->config->getKlipperConfig()->getSkipStandbyAlternate();
     }
 
     if (this->config->getUiConfig() != nullptr) {
