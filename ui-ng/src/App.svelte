@@ -429,14 +429,13 @@
                     <input
                         type="checkbox"
                         bind:checked={skipStandbyAlternation}
-                        content="123"
                     />
                     <span
                         >Skip alternating standby and voron images during
                         standby</span
                     >
                 </label>
-                <br/>
+                <br />
                 <button disabled={isSaving || null} type="submit">SAVE</button>
             </form>
         </div>
