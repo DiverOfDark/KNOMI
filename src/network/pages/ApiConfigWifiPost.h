@@ -113,11 +113,11 @@ public:
 
     if (setSkipStandbyAlternation) {
       this->config->getKlipperConfig()->setSkipStandbyAlternate(skipStandbyAlternation);
-      LV_LOG_INFO("got PrintProgressMethod: %s", skipStandbyAlternation.c_str());
+      LV_LOG_INFO("got SkipStandbyAlternation: %s", skipStandbyAlternation.c_str());
     } else {
-      LV_LOG_INFO("error, not found printProgressMethod");
+      LV_LOG_INFO("error, not found skipStandbyAlternation");
       httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"printProgressMethod is not found\"}");
+      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"skipStandbyAlternation is not found\"}");
       return ESP_OK;
     }
 
