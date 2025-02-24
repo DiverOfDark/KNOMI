@@ -16,7 +16,7 @@ path = "./src/main.rs"
 [dependencies]
 espflash = { version = "3.3.0", default-features = false, features = ["serialport"] }
 miette = { version = "7.5.0", features = ["fancy"] }
-log = "0.4.25"
+log = "0.4.26"
 serde = "1.0.217"
 serde_json = "1.0.138"
 chrono = "0.4.39"
