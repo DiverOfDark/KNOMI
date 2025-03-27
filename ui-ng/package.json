@@ -19,7 +19,7 @@
         "spark-md5": "^3.0.2"
     },
     "devDependencies": {
-        "@eslint/eslintrc": "^3.2.0",
+        "@eslint/eslintrc": "^3.3.1",
         "@eslint/js": "^9.23.0",
         "@gfx/zopfli": "^1.0.15",
         "@sveltejs/vite-plugin-svelte": "^5.0.3",
