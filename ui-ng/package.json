@@ -44,7 +44,7 @@
         "typescript-eslint": "^8.35.1",
         "vite": "^6.3.5",
         "vite-plugin-compression2": "^2.2.0",
-        "vite-plugin-singlefile": "^2.2.0",
+        "vite-plugin-singlefile": "^2.3.0",
         "vite-plugin-svgo": "^2.0.0"
     }
 }
