@@ -22,7 +22,7 @@
         "@eslint/eslintrc": "^3.2.0",
         "@eslint/js": "^9.31.0",
         "@gfx/zopfli": "^1.0.15",
-        "@sveltejs/vite-plugin-svelte": "^5.1.0",
+        "@sveltejs/vite-plugin-svelte": "^6.1.0",
         "@tsconfig/svelte": "^5.0.4",
         "@types/semver": "^7.7.0",
         "@types/spark-md5": "^3.0.5",
