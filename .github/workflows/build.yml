@@ -100,7 +100,7 @@ jobs:
 
       - name: Download Firmware Files
         id: download-flasher
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: firmware-*
           path: rs-flasher/resources
@@ -159,14 +159,14 @@ jobs:
     steps:
     - name: Download Firmware Files
       id: download-firmware
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         pattern: firmware-*
         merge-multiple: true
 
     - name: Download Flasher Files
       id: download-flasher
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         pattern: flasher-*
         merge-multiple: true
