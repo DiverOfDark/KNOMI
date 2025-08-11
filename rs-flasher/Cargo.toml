@@ -14,7 +14,7 @@ path = "./src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-espflash = { version = "3.3.0", default-features = false, features = ["serialport"] }
+espflash = { version = "4.0.1", default-features = false, features = ["serialport"] }
 miette = { version = "7.6.0", features = ["fancy"] }
 log = "0.4.27"
 serde = "1.0.219"
