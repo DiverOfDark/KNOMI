@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@picocss/pico": "^2.1.1",
-        "pretty-bytes": "^7.0.0",
+        "pretty-bytes": "^7.0.1",
         "semver": "^7.7.2",
         "spark-md5": "^3.0.2"
     },
