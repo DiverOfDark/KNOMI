@@ -4,23 +4,21 @@ use chrono::DateTime;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::{Confirm, Select};
 use espflash;
-use espflash::connection::reset::{ResetAfterOperation, ResetBeforeOperation};
-use espflash::error::Error;
-use espflash::flasher::{Flasher, ProgressCallbacks};
-use espflash::targets::Chip;
-use indicatif::{ProgressBar, ProgressStyle};
+use espflash::flasher::Flasher;
+use espflash::target::Chip;
 use log::{debug, error, info};
 use miette::{IntoDiagnostic, Result};
 use serde::Deserialize;
 use serialport::{available_ports, FlowControl, SerialPortInfo, SerialPortType, UsbPortInfo};
 use std::io;
-use std::u32;
-use espflash::elf::RomSegment;
 
+use crate::segments::{get_chip, get_segments, Device};
+use espflash::cli::EspflashProgress;
+use espflash::connection::{Connection, Port, ResetAfterOperation, ResetBeforeOperation};
+use espflash::image_format::Segment;
+use espflash::Error;
 #[allow(unused_imports)]
 use std::io::Write;
-use espflash::connection::Port;
-use crate::segments::{Device, get_chip, get_segments};
 
 #[cfg(debug_assertions)]
 fn setup_logger() {
@@ -144,7 +142,11 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
     let segments = get_segments(&device);
 
     for segment in &segments {
-        info!("Going to flash at 0x{:06X}: 0x{:06X} bytes", segment.addr, segment.data.len())
+        info!(
+            "Going to flash at 0x{:06X}: 0x{:06X} bytes",
+            segment.addr,
+            segment.data.len()
+        )
     }
 
     write_firmware(segments, serial_port, port_info, chip)?;
@@ -152,25 +154,36 @@ fn flash_firmware(device: Device) -> Result<(), Error> {
     Ok(())
 }
 
-fn write_firmware(segments: Vec<RomSegment>,
-                  serial_port: Port,
-                  port_info: UsbPortInfo,
-                  chip: Chip) -> Result<(), Error> {
+fn write_firmware(
+    segments: Vec<Segment>,
+    serial_port: Port,
+    port_info: UsbPortInfo,
+    chip: Chip,
+) -> Result<(), Error> {
     info!("Connecting...");
-    let mut flasher = Flasher::connect(
-        *Box::new(serial_port),
-        port_info,
-        Some(115200),
-        true,
-        true,
-        false,
-        Some(chip),
-        ResetAfterOperation::HardReset,
-        ResetBeforeOperation::NoReset,
-    )?;
 
-    info!("Flashing...");
-    flasher.write_bins_to_flash(segments.as_slice(), Some(&mut EspflashProgress::default()))
+    let flasher = Flasher::connect(
+        Connection::new(
+            serial_port,
+            port_info,
+            ResetAfterOperation::HardReset,
+            ResetBeforeOperation::NoReset,
+            115200,
+        ),
+        true,
+        true,
+        true,
+        Some(chip),
+        Some(115200),
+    );
+
+    if flasher.is_ok() {
+        info!("Flashing...");
+        flasher?.write_bins_to_flash(segments.as_slice(), &mut EspflashProgress::default())
+    } else {
+        info!("Failed to connect!");
+        Err(flasher.unwrap_err())
+    }
 }
 
 fn format_time(time: String) -> String {
@@ -185,42 +198,6 @@ struct BuildInfo {
     branch: String,
     commit_time: String,
     build_time: String,
-}
-
-/// Progress callback implementations for use in `cargo-espflash` and `espflash`
-#[derive(Default)]
-pub struct EspflashProgress {
-    pb: Option<ProgressBar>,
-}
-
-impl ProgressCallbacks for EspflashProgress {
-    /// Initialize the progress bar
-    fn init(&mut self, addr: u32, len: usize) {
-        let pb = ProgressBar::new(len as u64)
-            .with_message(format!("{addr:#X}"))
-            .with_style(
-                ProgressStyle::default_bar()
-                    .template("[{elapsed_precise}] [{bar:40}] {pos:>7}/{len:7} @ {msg}")
-                    .unwrap()
-                    .progress_chars("=> "),
-            );
-
-        self.pb = Some(pb);
-    }
-
-    /// Update the progress bar
-    fn update(&mut self, current: usize) {
-        if let Some(ref pb) = self.pb {
-            pb.set_position(current as u64);
-        }
-    }
-
-    /// End the progress bar
-    fn finish(&mut self) {
-        if let Some(ref pb) = self.pb {
-            pb.finish();
-        }
-    }
 }
 
 /// Returns a vector with available USB serial ports.
@@ -264,7 +241,7 @@ fn select_device() -> Result<Device, Error> {
         1 => Ok(Device::KnomiV2),
         2 => Ok(Device::BttV1),
         3 => Ok(Device::BttV2),
-        _ => Err(Error::Cancelled)
+        _ => Err(Error::Cancelled),
     }
 }
 
@@ -297,7 +274,7 @@ fn select_serial_port(ports: Vec<SerialPortInfo>) -> Result<SerialPortInfo, Erro
             let term = dialoguer::console::Term::stdout();
             let _ = term.show_cursor();
         })
-            .expect("Error setting Ctrl-C handler");
+        .expect("Error setting Ctrl-C handler");
 
         let index = Select::with_theme(&ColorfulTheme::default())
             .items(&port_names)
