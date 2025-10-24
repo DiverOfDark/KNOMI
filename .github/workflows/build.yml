@@ -86,7 +86,7 @@ jobs:
       - name: Install required packages
         if: matrix.os == 'ubuntu-latest'
         run: |
-          sudo aptt update
+          sudo apt update
           sudo apt install -y libudev1 libudev-dev pkg-config
 
       - name: Cache Crates
