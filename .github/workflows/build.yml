@@ -61,7 +61,7 @@ jobs:
             cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
           
       - name: Archive Firmware Files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: 
           name: firmware-${{matrix.device}}
           path: |
@@ -142,7 +142,7 @@ jobs:
             cp rs-flasher/target/release/rs-flasher rs-flasher.linux-amd64
 
       - name: Archive Flasher
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with: 
           name: flasher-${{matrix.os}}
           path: |
