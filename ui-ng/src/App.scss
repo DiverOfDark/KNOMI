@@ -3,4 +3,4 @@ $theme-color: "red";
 $enable-responsive-spacings: "true";
 
 // Import Pico
-@import "@picocss/pico/scss/pico";
+@use "@picocss/pico/scss/pico";

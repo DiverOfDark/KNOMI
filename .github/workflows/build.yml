@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-        
+
       - name: Cache NPM
         uses: actions/cache@v4
         with:
@@ -37,32 +37,32 @@ jobs:
       - name: Setup Python 3.9
         uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
+          python-version: "3.9"
 
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
       - name: Build Firmware Core
-        run: | 
-            pio run --disable-auto-clean -e ${{matrix.device}}
+        run: |
+          pio run --disable-auto-clean -e ${{matrix.device}}
 
       - name: Build Firmware LittleFS
-        run: | 
-            pio run --disable-auto-clean -e ${{matrix.device}} -t buildfs
+        run: |
+          pio run --disable-auto-clean -e ${{matrix.device}} -t buildfs
 
       - name: Prepare artifacts for archive
         run: |
-            mkdir ${{matrix.device}}
-            cp .pio/build/${{matrix.device}}/buildinfo.json buildinfo.json
-            cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
-            cp .pio/build/${{matrix.device}}/partitions.bin ${{matrix.device}}/partitions.bin 
-            cp .pio/build/${{matrix.device}}/bootloader.bin ${{matrix.device}}/bootloader.bin 
-            cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
-            cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
-          
+          mkdir ${{matrix.device}}
+          cp .pio/build/${{matrix.device}}/buildinfo.json buildinfo.json
+          cp .pio/build/${{matrix.device}}/firmware.bin ${{matrix.device}}/firmware.bin 
+          cp .pio/build/${{matrix.device}}/partitions.bin ${{matrix.device}}/partitions.bin 
+          cp .pio/build/${{matrix.device}}/bootloader.bin ${{matrix.device}}/bootloader.bin 
+          cp .pio/build/${{matrix.device}}/firmware.elf ${{matrix.device}}/firmware.elf
+          cp .pio/build/${{matrix.device}}/littlefs.bin ${{matrix.device}}/littlefs.bin
+
       - name: Archive Firmware Files
-        uses: actions/upload-artifact@v4
-        with: 
+        uses: actions/upload-artifact@v5
+        with:
           name: firmware-${{matrix.device}}
           path: |
             buildinfo.json
@@ -82,7 +82,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
-        
+
       - name: Install required packages
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -102,7 +102,7 @@ jobs:
 
       - name: Download Firmware Files
         id: download-flasher
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           pattern: firmware-*
           path: rs-flasher/resources
@@ -110,8 +110,8 @@ jobs:
 
       - name: Prepare resources
         run: |
-            cp partition.csv rs-flasher/resources/knomiv1/partition.csv
-            cp partition-v2.csv rs-flasher/resources/knomiv2/partition.csv
+          cp partition.csv rs-flasher/resources/knomiv1/partition.csv
+          cp partition-v2.csv rs-flasher/resources/knomiv2/partition.csv
 
       - name: Build Flasher
         run: cargo build --release --manifest-path rs-flasher/Cargo.toml
@@ -119,31 +119,31 @@ jobs:
       - name: Build Flasher (macOS Arm)
         if: matrix.os == 'macos-latest'
         run: |
-            rustup target add aarch64-apple-darwin
-            cargo build --target aarch64-apple-darwin --release --manifest-path rs-flasher/Cargo.toml
+          rustup target add aarch64-apple-darwin
+          cargo build --target aarch64-apple-darwin --release --manifest-path rs-flasher/Cargo.toml
 
       - name: Copy result
         if: matrix.os == 'windows-latest'
-        run: | 
-            dir rs-flasher/target/release
-            copy rs-flasher/target/release/rs-flasher.exe rs-flasher.exe
+        run: |
+          dir rs-flasher/target/release
+          copy rs-flasher/target/release/rs-flasher.exe rs-flasher.exe
 
       - name: Copy result
         if: matrix.os == 'macos-latest'
-        run: | 
-            ls rs-flasher/target/release
-            cp rs-flasher/target/release/rs-flasher rs-flasher.macOS-amd64
-            cp rs-flasher/target/aarch64-apple-darwin/release/rs-flasher rs-flasher.macOS-arm64
+        run: |
+          ls rs-flasher/target/release
+          cp rs-flasher/target/release/rs-flasher rs-flasher.macOS-amd64
+          cp rs-flasher/target/aarch64-apple-darwin/release/rs-flasher rs-flasher.macOS-arm64
 
       - name: Copy result
         if: matrix.os == 'ubuntu-latest'
-        run: | 
-            ls rs-flasher/target/release
-            cp rs-flasher/target/release/rs-flasher rs-flasher.linux-amd64
+        run: |
+          ls rs-flasher/target/release
+          cp rs-flasher/target/release/rs-flasher rs-flasher.linux-amd64
 
       - name: Archive Flasher
-        uses: actions/upload-artifact@v4
-        with: 
+        uses: actions/upload-artifact@v5
+        with:
           name: flasher-${{matrix.os}}
           path: |
             rs-flasher.exe
@@ -152,81 +152,81 @@ jobs:
             rs-flasher.linux-amd64
 
   release:
-    needs: 
+    needs:
       - build-flasher
     if: startsWith(github.event.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    environment: 
+    environment:
       name: github-releases
     steps:
-    - name: Download Firmware Files
-      id: download-firmware
-      uses: actions/download-artifact@v5
-      with:
-        pattern: firmware-*
-        merge-multiple: true
+      - name: Download Firmware Files
+        id: download-firmware
+        uses: actions/download-artifact@v6
+        with:
+          pattern: firmware-*
+          merge-multiple: true
 
-    - name: Download Flasher Files
-      id: download-flasher
-      uses: actions/download-artifact@v5
-      with:
-        pattern: flasher-*
-        merge-multiple: true
+      - name: Download Flasher Files
+        id: download-flasher
+        uses: actions/download-artifact@v6
+        with:
+          pattern: flasher-*
+          merge-multiple: true
 
-    - name: Build Changelog
-      id: build_changelog
-      uses: mikepenz/release-changelog-builder-action@v5
-      with:
-        configurationJson: |
-          {
-            "categories": [
-              {
-                  "title": "## 🚀 Features",
-                  "labels": ["feature", "enhancement" ]
-              },
-              {
-                  "title": "## 🐛 Bugs",
-                  "labels": ["bug" ]
-              },
-              {
-                  "title": "## 📦 Dependencies",
-                  "labels": ["dependencies"]
-              }
-            ]
-          }
-    - name: Show files
-      run: |
-        zip -r knomiv1.zip knomiv1
-        zip -r knomiv2.zip knomiv2
-        
-        echo download-firmware:
-        find ${{steps.download-firmware.outputs.download-path}}
+      - name: Build Changelog
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v6
+        with:
+          configurationJson: |
+            {
+              "categories": [
+                {
+                    "title": "## 🚀 Features",
+                    "labels": ["feature", "enhancement" ]
+                },
+                {
+                    "title": "## 🐛 Bugs",
+                    "labels": ["bug" ]
+                },
+                {
+                    "title": "## 📦 Dependencies",
+                    "labels": ["dependencies"]
+                }
+              ]
+            }
+      - name: Show files
+        run: |
+          zip -r knomiv1.zip knomiv1
+          zip -r knomiv2.zip knomiv2
 
-        echo download-flasher:
-        find ${{steps.download-flasher.outputs.download-path}}
+          echo download-firmware:
+          find ${{steps.download-firmware.outputs.download-path}}
 
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      with:
-        body: | 
-          Files published:
-            - rs-flasher - Tool to update firmware on your KNOMI v1/v2 without installing any dependencies
-            - knomiv1.zip - Firmware for KNOMI v1
-                 - firmware_full.bin - Full image to be flashed by esptool 
-                 - firmware.bin - OTA update
-                 - firmware.elf - debug symbols
-                 - littlefs.bin - partition with resources
-            - knomiv2.zip - Firmware for KNOMI v2
-                 - firmware_full.bin - Full image to be flashed by esptool 
-                 - firmware.bin - OTA update
-                 - firmware.elf - debug symbols
-                 - littlefs.bin - partition with resources
+          echo download-flasher:
+          find ${{steps.download-flasher.outputs.download-path}}
 
-          ${{steps.build_changelog.outputs.changelog}}
-        files: | 
-          ${{steps.download-firmware.outputs.download-path}}/knomiv1.zip
-          ${{steps.download-firmware.outputs.download-path}}/knomiv2.zip
-          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
-          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
-          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64
-          ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-arm64
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: |
+            Files published:
+              - rs-flasher - Tool to update firmware on your KNOMI v1/v2 without installing any dependencies
+              - knomiv1.zip - Firmware for KNOMI v1
+                   - firmware_full.bin - Full image to be flashed by esptool 
+                   - firmware.bin - OTA update
+                   - firmware.elf - debug symbols
+                   - littlefs.bin - partition with resources
+              - knomiv2.zip - Firmware for KNOMI v2
+                   - firmware_full.bin - Full image to be flashed by esptool 
+                   - firmware.bin - OTA update
+                   - firmware.elf - debug symbols
+                   - littlefs.bin - partition with resources
+
+            ${{steps.build_changelog.outputs.changelog}}
+          files: |
+            ${{steps.download-firmware.outputs.download-path}}/knomiv1.zip
+            ${{steps.download-firmware.outputs.download-path}}/knomiv2.zip
+            ${{steps.download-flasher.outputs.download-path}}/rs-flasher.exe
+            ${{steps.download-flasher.outputs.download-path}}/rs-flasher.linux-amd64
+            ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-amd64
+            ${{steps.download-flasher.outputs.download-path}}/rs-flasher.macOS-arm64

@@ -1,11 +1,11 @@
 [package]
 name = "rs-flasher"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [profile.release]
-strip = true  # Automatically strip symbols from the binary.
-opt-level = "z"  # Optimize for size.
+strip = true    # Automatically strip symbols from the binary.
+opt-level = "z" # Optimize for size.
 lto = true
 
 [[bin]]
@@ -14,16 +14,19 @@ path = "./src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-espflash = { version = "3.3.0", default-features = false, features = ["serialport"] }
+espflash = { version = "4.2.0", default-features = false, features = [
+    "serialport",
+    "cli",
+] }
 miette = { version = "7.6.0", features = ["fancy"] }
 log = "0.4.28"
 serde = "1.0.228"
 serde_json = "1.0.145"
 chrono = "0.4.42"
 dialoguer = "0.12.0"
-ctrlc = "3.5.0"
+ctrlc = "3.5.1"
 serialport = "4.8.1"
-indicatif = "0.18.0"
+indicatif = "0.18.2"
 env_logger = "0.11.6"
 include-bytes-zstd = "0.1.0"
 csv = "1.4.0"

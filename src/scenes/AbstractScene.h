@@ -19,7 +19,7 @@ protected:
 
 public:
   virtual SwitchSceneRequest *NextScene() = 0;
-  virtual ~AbstractScene(){};
+  virtual ~AbstractScene() {};
 
   virtual void Tick() {}
 };
