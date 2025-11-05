@@ -188,17 +188,18 @@ private:
 
     if (id == 66829) {
       deserializeJson(doc, buffer);
-      if (doc.containsKey("result")) {
+
+      if (doc["result"].is<JsonObject>()) {
         const JsonObject &result = doc["result"].as<JsonObject>();
-        if (result.containsKey("gcode_start_byte")) {
+        if (result["gcode_start_byte"].is<int>()) {
           this->file_gcode_start_byte = result["gcode_start_byte"].as<int>();
           LV_LOG_INFO("Gcode start byte: %i", this->file_gcode_start_byte);
         }
-        if (result.containsKey("gcode_end_byte")) {
+        if (result["gcode_end_byte"].is<int>()) {
           this->file_gcode_end_byte = result["gcode_end_byte"].as<int>();
           LV_LOG_INFO("Gcode end byte: %i", this->file_gcode_end_byte);
         }
-        if (result.containsKey("filament_total")) {
+        if (result["filament_total"].is<float>()) {
           this->file_filament_total = result["filament_total"].as<float>();
           LV_LOG_INFO("Filament total: %f", this->file_filament_total);
         }
@@ -220,20 +221,20 @@ private:
         updatePosition(value);
       } else if (key == "toolhead") {
         updatePosition(value);
-        if (value.containsKey("status")) {
+        if (value["status"].is<String>()) {
           this->toolheadStatus = value["status"].as<String>();
           LV_LOG_INFO("Toolhead status: %s", toolheadStatus.c_str());
         }
       } else if (key == "print_stats") {
-        if (value.containsKey("filament_used")) {
+        if (value["filament_used"].is<float>()) {
           this->filament_used = value["filament_used"].as<float>();
           LV_LOG_INFO("Filament used: %f", this->filament_used);
         }
-        if (value.containsKey("state")) {
+        if (value["state"].is<String>()) {
           this->printState = value["state"].as<String>();
           LV_LOG_INFO("State: %s", this->printState.c_str());
         }
-        if (value.containsKey("filename")) {
+        if (value["filename"].is<String>()) {
           String newFilename = value["filename"].as<String>();
 
           if (newFilename != this->print_stats_filename) {
@@ -251,43 +252,43 @@ private:
           }
         }
       } else if (key == "virtual_sdcard") {
-        if (value.containsKey("progress")) {
+        if (value["progress"].is<float>()) {
           this->virtual_sdcard_progress = value["progress"].as<float>();
           LV_LOG_INFO("Virtual SDCard Progress: %f", this->virtual_sdcard_progress);
         }
-        if (value.containsKey("file_position")) {
+        if (value["file_position"].is<int>()) {
           this->virtual_sdcard_file_position = value["file_position"].as<int>();
           LV_LOG_INFO("Virtual SDCard File Position: %f", this->virtual_sdcard_file_position);
         }
-        if (value.containsKey("is_active")) {
+        if (value["is_active"].is<bool>()) {
           this->virtual_sdcard_is_active = value["is_active"].as<bool>();
           LV_LOG_INFO("Virtual SDCard Active: %i", this->virtual_sdcard_is_active);
         }
       } else if (key == "display_status") {
-        if (value.containsKey("progress")) {
+        if (value["progress"].is<float>()) {
           this->display_status_progress = value["progress"].as<float>() * 100;
           LV_LOG_INFO("Display Status Progress: %f", this->display_status_progress);
         }
       } else if (key == "idle_timeout") {
         // Do nothing
       } else if (key == "gcode_macro _KNOMI_STATUS") {
-        if (value.containsKey("homing")) {
+        if (value["homing"].is<bool>()) {
           this->homing = value["homing"].as<bool>();
           LV_LOG_INFO("Homing: %i", this->homing);
         }
-        if (value.containsKey("probing")) {
+        if (value["probing"].is<bool>()) {
           this->probing = value["probing"].as<bool>();
           LV_LOG_INFO("Probing: %i", this->probing);
         }
-        if (value.containsKey("qgling")) {
+        if (value["qgling"].is<bool>()) {
           this->qgling = value["qgling"].as<bool>();
           LV_LOG_INFO("QGLing: %i", this->qgling);
         }
-        if (value.containsKey("heating_nozzle")) {
+        if (value["heating_nozzle"].is<bool>()) {
           this->heating_nozzle = value["heating_nozzle"].as<bool>();
           LV_LOG_INFO("Heating nozzle: %i", this->heating_nozzle);
         }
-        if (value.containsKey("heating_bed")) {
+        if (value["heating_bed"].is<bool>()) {
           this->heating_bed = value["heating_bed"].as<bool>();
           LV_LOG_INFO("Heating bed: %i", this->heating_bed);
         }
@@ -300,7 +301,7 @@ private:
   }
 
   void updatePosition(const JsonObject &value) {
-    if (!value.containsKey("position")) {
+    if (!value["position"].is<JsonArray>()) {
       return;
     }
 
@@ -325,7 +326,7 @@ private:
   }
 
   void updateHeaterBed(JsonObject &object) {
-    if (object.containsKey("temperature")) {
+    if (object["temperature"].is<float>()) {
       float newTemperature = object["temperature"].as<float>();
       if (abs(this->bedTemperature - newTemperature) > 0.15) {
         this->bedTemperature = newTemperature;
@@ -333,7 +334,7 @@ private:
         LV_LOG_INFO("Heater bed temperature: %f", this->bedTemperature);
       }
     }
-    if (object.containsKey("target")) {
+    if (object["target"].is<float>()) {
       float newTemperature = object["target"].as<float>();
       if (abs(this->bedTarget - newTemperature) > 0.15) {
         this->bedTarget = newTemperature;
@@ -344,7 +345,7 @@ private:
   }
 
   void updateExtruder(JsonObject &object) {
-    if (object.containsKey("temperature")) {
+    if (object["temperature"].is<float>()) {
       float newTemperature = object["temperature"].as<float>();
       if (abs(this->extruderTemperature - newTemperature) > 0.15) {
         this->extruderTemperature = newTemperature;
@@ -352,7 +353,7 @@ private:
         LV_LOG_INFO("Extruder temperature: %f", this->extruderTemperature);
       }
     }
-    if (object.containsKey("target")) {
+    if (object["target"].is<float>()) {
       float newTemperature = object["target"].as<float>();
       if (abs(this->extruderTarget - newTemperature) > 0.15) {
         this->extruderTarget = newTemperature;

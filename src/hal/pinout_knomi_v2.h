@@ -2,8 +2,8 @@
 
 #define BOOT_PIN 0
 
-// Workaround for https://github.com/Bodmer/TFT_eSPI/issues/3351 after upgrading espressif32 to anything newer than 6.6.0
-// Workaround from: https://github.com/Bodmer/TFT_eSPI/issues/3332#issuecomment-2198238894 
+// Workaround for https://github.com/Bodmer/TFT_eSPI/issues/3351 after upgrading espressif32 to anything newer
+// than 6.6.0 Workaround from: https://github.com/Bodmer/TFT_eSPI/issues/3332#issuecomment-2198238894
 #define USE_HSPI_PORT
 
 // common i2c
