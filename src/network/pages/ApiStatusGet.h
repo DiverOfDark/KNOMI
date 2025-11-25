@@ -27,7 +27,7 @@ public:
 
     if (this->config->getNetworkConfig() != nullptr) {
       doc["ssid"] = this->config->getNetworkConfig()->getSsid();
-      doc["pass"] = this->config->getNetworkConfig()->getPsk();
+      doc["pass"] = String(this->config->getNetworkConfig()->getPsk().length(), '*');
       doc["hostname"] = this->config->getNetworkConfig()->getHostname();
     }
 
