@@ -64,68 +64,49 @@ public:
     if (setSsid) {
       this->config->getNetworkConfig()->setSsid(ssid);
       LV_LOG_INFO("got ssid: %s", ssid.c_str());
-    } else {
-      LV_LOG_INFO("error, not found ssid");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"SSID is not found\"}");
-      return ESP_OK;
     }
 
     if (setPass) {
       this->config->getNetworkConfig()->setPsk(pass);
       LV_LOG_INFO("got password: %s", pass.c_str());
-    } else {
-      LV_LOG_INFO("error, not found password");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"PASS is not found\"}");
-      return ESP_OK;
     }
 
     if (setHostname) {
       this->config->getNetworkConfig()->setHostname(hostname);
       LV_LOG_INFO("got hostname: %s", hostname.c_str());
-    } else {
-      LV_LOG_INFO("error, not found hostname");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"HOSTNAME is not found\"}");
-      return ESP_OK;
     }
 
     if (setKlipper) {
       this->config->getKlipperConfig()->setHost(klipper);
       LV_LOG_INFO("got KlipperIP: %s", klipper.c_str());
-    } else {
-      LV_LOG_INFO("error, not found klipper ip");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"KLIPPER is not found\"}");
-      return ESP_OK;
     }
 
     if (setPrintProgressMethod) {
       this->config->getKlipperConfig()->setPrintPercentageMethod(printProgressMethod);
       LV_LOG_INFO("got PrintProgressMethod: %s", printProgressMethod.c_str());
-    } else {
-      LV_LOG_INFO("error, not found printProgressMethod");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"printProgressMethod is not found\"}");
-      return ESP_OK;
     }
 
     if (setSkipStandbyAlternation) {
       this->config->getKlipperConfig()->setSkipStandbyAlternate(skipStandbyAlternation);
       LV_LOG_INFO("got SkipStandbyAlternation: %s", skipStandbyAlternation.c_str());
-    } else {
-      LV_LOG_INFO("error, not found skipStandbyAlternation");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "{error:\"skipStandbyAlternation is not found\"}");
-      return ESP_OK;
     }
 
     this->config->save();
     delay(200);
 
+    // Validate that SSID and password are set before connecting
+    String currentSsid = this->config->getNetworkConfig()->getSsid();
+    String currentPsk = this->config->getNetworkConfig()->getPsk();
+    
+    if (currentSsid.length() == 0 || currentPsk.length() == 0) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "{\"error\":\"WiFi SSID and password must be set\"}");
+      LV_LOG_WARN("Cannot connect to WiFi: SSID or password is empty");
+      return ESP_OK;
+    }
+
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, "{result: \"ok\"}");
+    httpd_resp_sendstr(req, "{\"result\": \"ok\"}");
     LV_LOG_INFO("WiFi Connect SSID: %s, PASS: %s, HOSTNAME: %s", this->config->getNetworkConfig()->getSsid().c_str(),
                 this->config->getNetworkConfig()->getPsk().c_str(),
                 this->config->getNetworkConfig()->getHostname().c_str());

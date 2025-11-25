@@ -27,6 +27,14 @@
     var printProgressMethod = "";
     var skipStandbyAlternation = false;
 
+    // Track initial values to detect changes
+    var initialSsid = "";
+    var initialPass = "";
+    var initialIp = "";
+    var initialHostname = "";
+    var initialPrintProgressMethod = "";
+    var initialSkipStandbyAlternation = false;
+
     var isSaving = false;
     var isWifiFocused = false;
 
@@ -52,9 +60,13 @@
         let json = await response.json();
 
         ssid = json.ssid;
+        initialSsid = json.ssid;
         pass = json.pass;
+        initialPass = json.pass;
         ip = json.ip;
+        initialIp = json.ip;
         hostname = json.hostname;
+        initialHostname = json.hostname;
         hash = json.hash;
         branch = json.branch;
         device = json.device;
@@ -63,7 +75,9 @@
         accentColor = json.accentColor;
         backgroundColor = json.backgroundColor;
         printProgressMethod = json.printProgressMethod;
+        initialPrintProgressMethod = json.printProgressMethod;
         skipStandbyAlternation = json.skipStandbyAlternation;
+        initialSkipStandbyAlternation = json.skipStandbyAlternation;
         initWebSocket();
         checkForUpdates();
         fetchNetworks();
@@ -180,15 +194,29 @@
         isSaving = true;
         console.log(ssid + "/" + pass + "/" + ip);
         const data = new FormData();
-        data.append("ssid", ssid);
-        data.append("pass", pass);
-        data.append("klipper", ip);
-        data.append("printProgressMethod", printProgressMethod);
-        data.append(
-            "skipStandbyAlternation",
-            skipStandbyAlternation.toString(),
-        );
-        data.append("hostname", hostname);
+        
+        // Only append fields that have changed
+        if (ssid !== initialSsid) {
+            data.append("ssid", ssid);
+        }
+        if (pass !== initialPass) {
+            data.append("pass", pass);
+        }
+        if (ip !== initialIp) {
+            data.append("klipper", ip);
+        }
+        if (printProgressMethod !== initialPrintProgressMethod) {
+            data.append("printProgressMethod", printProgressMethod);
+        }
+        if (skipStandbyAlternation !== initialSkipStandbyAlternation) {
+            data.append(
+                "skipStandbyAlternation",
+                skipStandbyAlternation.toString(),
+            );
+        }
+        if (hostname !== initialHostname) {
+            data.append("hostname", hostname);
+        }
 
         const res = await fetch("/api/configwifi", {
             method: "POST",
