@@ -45,10 +45,8 @@ private:
     uint copyLength = maxPos - copyStart;
     if (copyStart > 0 && copyLength > 0) {
       LV_LOG_DEBUG("Moving buffer from %i - %i bytes", copyStart, copyLength);
-      char *newBuf = new char[bufferSize];
-      memcpy(newBuf, buf + copyStart, copyLength);
-      memcpy(buf, newBuf, copyLength);
-      delete[] newBuf;
+      // Use memmove to handle overlapping regions without extra allocations
+      memmove(buf, buf + copyStart, copyLength);
     }
     int bytesRead;
     do {
@@ -84,12 +82,10 @@ protected:
   static String getHeader(httpd_req_t *req, const String &param) {
     LV_LOG_DEBUG("Getting header %s", param.c_str());
     size_t len = httpd_req_get_hdr_value_len(req, param.c_str());
-    char *contentType = new char[len + 1];
-    memset(contentType, 0, len + 1);
-    httpd_req_get_hdr_value_str(req, param.c_str(), contentType, len + 1);
-    String header = String(contentType);
-    delete[] contentType;
-    LV_LOG_DEBUG("Got %s", contentType);
+    std::unique_ptr<char[]> buf(new char[len + 1]());
+    httpd_req_get_hdr_value_str(req, param.c_str(), buf.get(), len + 1);
+    String header = String(buf.get());
+    LV_LOG_DEBUG("Got %s", header.c_str());
     return header;
   }
 
