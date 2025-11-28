@@ -2,6 +2,7 @@
 #include "../UpdateProgress.h"
 #include "AbstractPage.h"
 #include "esp_rom_md5.h"
+#include <MD5Builder.h>
 #include <functional>
 
 class ApiUploadFilePost : public AbstractPage {
@@ -53,7 +54,7 @@ public:
             if (!updateProgress->waitForCanWrite()) {
               errorCode = HTTPD_500;
               errorText = "Internal error.";
-              return (ReadCallback) nullptr;
+              return static_cast<ReadCallback>(nullptr);
             }
             LV_LOG_INFO("UpdateProgress check done");
 
@@ -70,14 +71,12 @@ public:
             return md5print;
           }
 
-          return (ReadCallback) nullptr;
+          return static_cast<ReadCallback>(nullptr);
         })) {
       return ESP_OK;
     }
     builder.calculate();
-    LV_LOG_INFO(filename.c_str());
-    LV_LOG_INFO(size.c_str());
-    LV_LOG_INFO(builder.toString().c_str());
+    LV_LOG_INFO("Filename: %s, size: %s, hash: %s", filename.c_str(), size.c_str(), builder.toString().c_str());
 
     httpd_resp_set_status(req, errorCode.c_str());
     httpd_resp_set_type(req, "text/plain");
