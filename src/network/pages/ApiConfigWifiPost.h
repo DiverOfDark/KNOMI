@@ -12,6 +12,10 @@ public:
     this->config = config;
   }
 
+protected:
+  bool requiresAuth() override { return true; }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     String ssid;
     bool setSsid = false;
@@ -107,7 +111,9 @@ public:
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "{\"result\": \"ok\"}");
-    LV_LOG_INFO("WiFi Connect requested for  SSID: %s, HOSTNAME: %s", this->config->getNetworkConfig()->getSsid().c_str(), this->config->getNetworkConfig()->getHostname().c_str());
+    LV_LOG_INFO("WiFi Connect requested for  SSID: %s, HOSTNAME: %s",
+                this->config->getNetworkConfig()->getSsid().c_str(),
+                this->config->getNetworkConfig()->getHostname().c_str());
     wifimanager->connectToWiFi();
 
     return ESP_OK;

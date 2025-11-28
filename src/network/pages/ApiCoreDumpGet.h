@@ -5,6 +5,10 @@ class ApiCoreDumpGet : public AbstractPage {
 public:
   explicit ApiCoreDumpGet(httpd_handle_t server) : AbstractPage(server, HTTP_GET, "/api/coredump") {}
 
+protected:
+  bool requiresAuth() override { return true; }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     httpd_resp_set_type(req, "application/binary");
 

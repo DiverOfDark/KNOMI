@@ -15,6 +15,7 @@ public:
   }
 
 protected:
+  bool requiresAuth() override { return true; }
 
   static bool isValidFilename(const String &name) {
     if (name.length() == 0)
@@ -48,6 +49,16 @@ public:
             return readString(&size);
           }
           if (formData.equals("file")) {
+            if (!isValidFilename(filename)) {
+              errorCode = HTTPD_400;
+              errorText = "Invalid filename";
+              return static_cast<ReadCallback>(nullptr);
+            }
+            if (isProtectedFsPath(filename)) {
+              errorCode = HTTPD_403_FORBIDDEN;
+              errorText = "FORBIDDEN";
+              return static_cast<ReadCallback>(nullptr);
+            }
             auto currentFile = LittleFS.open("/" + filename, "r");
             size_t available = LittleFS.totalBytes() - LittleFS.usedBytes() + currentFile.size();
             currentFile.close();
