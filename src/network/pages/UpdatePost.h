@@ -1,5 +1,6 @@
 #pragma once
 #include "AbstractPage.h"
+#include "Update.h"
 
 class UpdatePost : public AbstractPage {
 private:

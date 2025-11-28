@@ -44,7 +44,7 @@ public:
             if (available < minimalAvailableSize + uploadSize) {
               errorCode = HTTPD_500;
               errorText = "Not enough of free space";
-              return (ReadCallback) nullptr;
+              return static_cast<ReadCallback>(nullptr);
             }
 
             updateProgress->total = uploadSize;
