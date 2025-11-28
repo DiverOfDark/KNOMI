@@ -68,7 +68,7 @@ public:
 
     if (setPass) {
       this->config->getNetworkConfig()->setPsk(pass);
-      LV_LOG_INFO("got password: %s", pass.c_str());
+      LV_LOG_INFO("got password");
     }
 
     if (setHostname) {
@@ -97,7 +97,7 @@ public:
     // Validate that SSID and password are set before connecting
     String currentSsid = this->config->getNetworkConfig()->getSsid();
     String currentPsk = this->config->getNetworkConfig()->getPsk();
-    
+
     if (currentSsid.length() == 0 || currentPsk.length() == 0) {
       httpd_resp_set_type(req, "application/json");
       httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "{\"error\":\"WiFi SSID and password must be set\"}");
@@ -107,9 +107,7 @@ public:
 
     httpd_resp_set_type(req, "application/json");
     httpd_resp_sendstr(req, "{\"result\": \"ok\"}");
-    LV_LOG_INFO("WiFi Connect SSID: %s, PASS: %s, HOSTNAME: %s", this->config->getNetworkConfig()->getSsid().c_str(),
-                this->config->getNetworkConfig()->getPsk().c_str(),
-                this->config->getNetworkConfig()->getHostname().c_str());
+    LV_LOG_INFO("WiFi Connect requested for  SSID: %s, HOSTNAME: %s", this->config->getNetworkConfig()->getSsid().c_str(), this->config->getNetworkConfig()->getHostname().c_str());
     wifimanager->connectToWiFi();
 
     return ESP_OK;
