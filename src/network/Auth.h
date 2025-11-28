@@ -26,9 +26,9 @@ public:
   explicit AuthManager(Config *cfg) : config(cfg) {}
 
   bool verifyPassword(const String &password) const {
-    if (config == nullptr)
+    if (config == nullptr || config->getSecurityConfig() == nullptr)
       return false;
-    const String &stored = config->getAdminPassword();
+    const String &stored = config->getSecurityConfig()->getAdminPassword();
     return stored.equalsConstantTime(password);
   }
 
@@ -60,9 +60,9 @@ public:
   }
 
   bool mustChangePassword() const {
-    if (config == nullptr)
+    if (config == nullptr || config->getSecurityConfig() == nullptr)
       return false;
     // Default password requires user to change it
-    return config->getAdminPassword() == String("KNOMI");
+    return config->getSecurityConfig()->getAdminPassword() == String("KNOMI");
   }
 };

@@ -2,6 +2,7 @@
 #include "BaseConfig.h"
 #include "KlipperConfig.h"
 #include "NetworkConfig.h"
+#include "SecurityConfig.h"
 #include "UIConfig.h"
 #include <LittleFS.h>
 
@@ -14,17 +15,21 @@ private:
   NetworkConfig *networkConfig = nullptr;
   KlipperConfig *klipperConfig = nullptr;
   UIConfig *uiConfig = nullptr;
+  SecurityConfig *securityConfig = nullptr;
 
   void init() {
     delete networkConfig;
     delete klipperConfig;
     delete uiConfig;
+    delete securityConfig;
     JsonObject networkObject = object(doc, "network");
     JsonObject klipperObject = object(doc, "klipper");
     JsonObject uiObject = object(doc, "ui");
+    JsonObject securityObject = object(doc, "security");
     networkConfig = new NetworkConfig(networkObject);
     klipperConfig = new KlipperConfig(klipperObject);
     uiConfig = new UIConfig(uiObject);
+    securityConfig = new SecurityConfig(securityObject);
     String buffer;
     serializeJson(doc, buffer);
     LV_LOG_INFO(buffer.c_str()); // TODO let each component log its config and obscure PSK
@@ -52,6 +57,7 @@ public:
   NetworkConfig *getNetworkConfig() { return this->networkConfig; }
   KlipperConfig *getKlipperConfig() { return this->klipperConfig; }
   UIConfig *getUiConfig() { return this->uiConfig; }
+  SecurityConfig *getSecurityConfig() { return this->securityConfig; }
 
   void reset() {
     LV_LOG_INFO("reset");

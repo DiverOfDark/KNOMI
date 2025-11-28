@@ -46,8 +46,9 @@ public:
       return ESP_OK;
     }
 
-    // Save
-    config->setAdminPassword(newPassword);
+    if (config->getSecurityConfig() != nullptr) {
+      config->getSecurityConfig()->setAdminPassword(newPassword);
+    }
     config->save();
 
     httpd_resp_set_type(req, "application/json");
