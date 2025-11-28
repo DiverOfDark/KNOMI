@@ -14,6 +14,21 @@ public:
     this->updateProgress = progress;
   }
 
+protected:
+
+  static bool isValidFilename(const String &name) {
+    if (name.length() == 0)
+      return false;
+    if (name.startsWith("/"))
+      return false;
+    if (name.indexOf("..") >= 0)
+      return false;
+    if (name.indexOf('\n') >= 0 || name.indexOf('\r') >= 0 || name.indexOf('\0') >= 0)
+      return false;
+    return true;
+  }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     String filename;
     String size;

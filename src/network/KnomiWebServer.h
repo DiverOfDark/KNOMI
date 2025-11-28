@@ -1,9 +1,7 @@
 #pragma once
-#include "../Version.h"
 #include "../config/Config.h"
 #include "../generated/images.h"
 #include "Arduino.h"
-// #include "Update.h"
 #include "WifiManager.h"
 #include "log.h"
 #include <esp_http_server.h>
