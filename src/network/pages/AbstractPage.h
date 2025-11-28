@@ -255,7 +255,7 @@ public:
         found = true;
         return callback;
       }
-      return (ReadCallback) nullptr;
+      return static_cast<ReadCallback>(nullptr);
     });
     return ok && found;
   }
@@ -279,7 +279,7 @@ protected:
   }
 
   static esp_err_t handlerStatic(httpd_req_t *request) {
-    auto *self = (AbstractPage *)request->user_ctx;
+    auto *self = static_cast<AbstractPage *>(request->user_ctx);
     // Auth check if required
     if (self->requiresAuth()) {
       bool ok = false;
@@ -287,17 +287,16 @@ protected:
         // Delegate to AuthManager via helper function on AbstractPage to avoid coupling
         ok = AbstractPage::isAuthorized(self, request);
       }
-      LV_LOG_INFO("is auth ok? %i", ok);
+      LV_LOG_DEBUG("is auth ok? %i", ok);
       // If default password is still set, restrict access to only a small allowlist
       bool allowed = false;
       if (!ok && self->auth && self->auth->mustChangePassword()) {
-        LV_LOG_INFO("MUST CHANGE PASSWORD");
         const char *uri = request->uri;
         // allowlist while in initial-setup: login, logout, change password, and security status
         allowed = (strcmp(uri, "/api/login") == 0) || (strcmp(uri, "/api/logout") == 0) ||
                   (strcmp(uri, "/api/changePassword") == 0) || (strcmp(uri, "/api/status/security") == 0);
-        LV_LOG_INFO("is req allowed? %i", allowed);
-        LV_LOG_INFO("Request URI? %s", uri);
+        LV_LOG_DEBUG("is req allowed? %i", allowed);
+        LV_LOG_DEBUG("Request URI? %s", uri);
         if (!allowed) {
           httpd_resp_set_status(request, "428 Precondition Required");
           httpd_resp_set_hdr(request, "Cache-Control", "no-store");

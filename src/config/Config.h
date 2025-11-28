@@ -30,9 +30,55 @@ private:
     klipperConfig = new KlipperConfig(klipperObject);
     uiConfig = new UIConfig(uiObject);
     securityConfig = new SecurityConfig(securityObject);
-    String buffer;
-    serializeJson(doc, buffer);
-    LV_LOG_INFO(buffer.c_str()); // TODO let each component log its config and obscure PSK
+    // Log each component's config with sensitive values obscured
+    auto maskSecret = [](const String &s) -> String {
+      if (s.isEmpty())
+        return String("(empty)");
+      if (s.length() <= 2)
+        return String("**");
+      String out;
+      out.reserve(s.length());
+      out += s.substring(0, 1);
+      for (size_t i = 0; i < s.length() - 2; ++i)
+        out += '*';
+      out += s.substring(s.length() - 1);
+      return out;
+    };
+
+    // Network
+    {
+      String ssid = networkConfig->getSsid();
+      String psk = networkConfig->getPsk();
+      String hostname = networkConfig->getHostname();
+      LV_LOG_INFO("Network: ssid=%s, psk=%s (len=%u), hostname=%s", ssid.c_str(), maskSecret(psk).c_str(),
+                  static_cast<unsigned>(psk.length()), hostname.c_str());
+    }
+
+    // Klipper
+    {
+      String host = klipperConfig->getHost();
+      String apiKey = klipperConfig->getApiKey();
+      String ppm = klipperConfig->getPrintPercentageMethod();
+      bool skip = klipperConfig->getSkipStandbyAlternate();
+      LV_LOG_INFO("Klipper: host=%s, apiKey=%s (len=%u), printPercentageMethod=%s, skipStandbyAlternate=%s",
+                  host.c_str(), maskSecret(apiKey).c_str(), static_cast<unsigned>(apiKey.length()), ppm.c_str(),
+                  skip ? "true" : "false");
+    }
+
+    // UI
+    {
+      uint32_t accent = uiConfig->getAccentColor();
+      uint32_t bg = uiConfig->getBackgroundColor();
+      LV_LOG_INFO("UI: accentColor=0x%08X, backgroundColor=0x%08X", static_cast<unsigned>(accent),
+                  static_cast<unsigned>(bg));
+    }
+
+    // Security
+    {
+      String admin = securityConfig->getAdminPassword();
+      LV_LOG_INFO("Security: adminPassword=%s (len=%u)", maskSecret(admin).c_str(),
+                  static_cast<unsigned>(admin.length()));
+    }
   }
 
 public:
