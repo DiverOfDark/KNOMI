@@ -5,7 +5,7 @@
 #include "UIConfig.h"
 #include <LittleFS.h>
 
-class Config : BaseConfig {
+class Config : public BaseConfig {
 private:
   const char *configPath = "/config.json";
 
@@ -27,7 +27,7 @@ private:
     uiConfig = new UIConfig(uiObject);
     String buffer;
     serializeJson(doc, buffer);
-    LV_LOG_INFO(buffer.c_str());
+    LV_LOG_INFO(buffer.c_str()); // TODO let each component log its config and obscure PSK
   }
 
 public:
@@ -35,12 +35,10 @@ public:
     fs::File file = LittleFS.open(configPath, "r");
     if (file) {
       const String &fileString = file.readString();
-      LV_LOG_INFO("File:");
-      LV_LOG_INFO(fileString.c_str());
+      LV_LOG_INFO("File: %s", fileString.c_str());
       DeserializationError error = deserializeJson(doc, fileString.c_str());
       if (error) {
-        LV_LOG_WARN("Failed to deserialize config: ");
-        LV_LOG_WARN(error.c_str());
+        LV_LOG_WARN("Failed to deserialize config: %s", error.c_str());
         doc.clear();
       }
     } else {
