@@ -2,17 +2,12 @@
 #include "../Version.h"
 #include "../config/Config.h"
 #include "../generated/images.h"
-#include "../generated/knomiWebpage.h"
 #include "Arduino.h"
-#include "Update.h"
-#include "WiFi.h"
-#include "WiFiClient.h"
+// #include "Update.h"
 #include "WifiManager.h"
 #include "log.h"
-#include <ESPmDNS.h>
 #include <esp_http_server.h>
 #include <esp_ota_ops.h>
-#include <set>
 
 #include "UpdateProgress.h"
 #include "pages/ApiConfigWifiPost.h"
