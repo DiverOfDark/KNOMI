@@ -10,7 +10,7 @@ public:
   WifiStation(NetworkConfig *config) {
     this->config = config;
     WiFi.setAutoReconnect(true);
-    LV_LOG_INFO((String("Connecting to WIFI ") + config->getSsid() + " / " + config->getPsk()).c_str());
+    LV_LOG_INFO("Connecting to WIFI ssid: %s", config->getSsid().c_str());
     WiFi.begin(config->getSsid(), config->getPsk());
     MDNS.begin(config->getHostname().c_str());
   }

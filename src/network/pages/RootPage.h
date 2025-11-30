@@ -1,4 +1,5 @@
 #pragma once
+#include "../../generated/knomiWebpage.h"
 #include "AbstractPage.h"
 
 class RootPage : public AbstractPage {
