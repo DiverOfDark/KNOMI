@@ -2,6 +2,7 @@
 #include "../UpdateProgress.h"
 #include "AbstractPage.h"
 #include "esp_rom_md5.h"
+#include <MD5Builder.h>
 #include <functional>
 
 class ApiUploadFilePost : public AbstractPage {
@@ -13,6 +14,22 @@ public:
     this->updateProgress = progress;
   }
 
+protected:
+  bool requiresAuth() override { return true; }
+
+  static bool isValidFilename(const String &name) {
+    if (name.length() == 0)
+      return false;
+    if (name.startsWith("/"))
+      return false;
+    if (name.indexOf("..") >= 0)
+      return false;
+    if (name.indexOf('\n') >= 0 || name.indexOf('\r') >= 0 || name.indexOf('\0') >= 0)
+      return false;
+    return true;
+  }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     String filename;
     String size;
@@ -32,6 +49,16 @@ public:
             return readString(&size);
           }
           if (formData.equals("file")) {
+            if (!isValidFilename(filename)) {
+              errorCode = HTTPD_400;
+              errorText = "Invalid filename";
+              return static_cast<ReadCallback>(nullptr);
+            }
+            if (isProtectedFsPath(filename)) {
+              errorCode = HTTPD_403_FORBIDDEN;
+              errorText = "FORBIDDEN";
+              return static_cast<ReadCallback>(nullptr);
+            }
             auto currentFile = LittleFS.open("/" + filename, "r");
             size_t available = LittleFS.totalBytes() - LittleFS.usedBytes() + currentFile.size();
             currentFile.close();
@@ -43,7 +70,7 @@ public:
             if (available < minimalAvailableSize + uploadSize) {
               errorCode = HTTPD_500;
               errorText = "Not enough of free space";
-              return (ReadCallback) nullptr;
+              return static_cast<ReadCallback>(nullptr);
             }
 
             updateProgress->total = uploadSize;
@@ -53,7 +80,7 @@ public:
             if (!updateProgress->waitForCanWrite()) {
               errorCode = HTTPD_500;
               errorText = "Internal error.";
-              return (ReadCallback) nullptr;
+              return static_cast<ReadCallback>(nullptr);
             }
             LV_LOG_INFO("UpdateProgress check done");
 
@@ -70,14 +97,12 @@ public:
             return md5print;
           }
 
-          return (ReadCallback) nullptr;
+          return static_cast<ReadCallback>(nullptr);
         })) {
       return ESP_OK;
     }
     builder.calculate();
-    LV_LOG_INFO(filename.c_str());
-    LV_LOG_INFO(size.c_str());
-    LV_LOG_INFO(builder.toString().c_str());
+    LV_LOG_INFO("Filename: %s, size: %s, hash: %s", filename.c_str(), size.c_str(), builder.toString().c_str());
 
     httpd_resp_set_status(req, errorCode.c_str());
     httpd_resp_set_type(req, "text/plain");

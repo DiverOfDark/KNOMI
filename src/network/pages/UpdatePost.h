@@ -1,5 +1,6 @@
 #pragma once
 #include "AbstractPage.h"
+#include "Update.h"
 
 class UpdatePost : public AbstractPage {
 private:
@@ -10,6 +11,10 @@ public:
     this->updateProgress = progress;
   }
 
+protected:
+  bool requiresAuth() override { return true; }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     String errorCode = HTTPD_200;
     String errorText = "OK";

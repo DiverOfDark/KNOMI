@@ -1,7 +1,10 @@
 #pragma once
+#include "../Auth.h"
 #include "esp_http_server.h"
 
 class KnomiWebServer;
+
+class AuthManager;
 
 class AbstractPage {
 private:
@@ -45,10 +48,8 @@ private:
     uint copyLength = maxPos - copyStart;
     if (copyStart > 0 && copyLength > 0) {
       LV_LOG_DEBUG("Moving buffer from %i - %i bytes", copyStart, copyLength);
-      char *newBuf = new char[bufferSize];
-      memcpy(newBuf, buf + copyStart, copyLength);
-      memcpy(buf, newBuf, copyLength);
-      delete[] newBuf;
+      // Use memmove to handle overlapping regions without extra allocations
+      memmove(buf, buf + copyStart, copyLength);
     }
     int bytesRead;
     do {
@@ -81,15 +82,45 @@ private:
   static inline std::string &trim(std::string &s, const char *t) { return ltrim(rtrim(s, t), t); }
 
 protected:
+  // Authorization support
+  AuthManager *auth = nullptr;
+  virtual bool requiresAuth() { return false; }
+
+  // Returns true if the provided filename/path refers to a protected resource
+  // that must never be exposed or modified via HTTP endpoints.
+  // Accepts either with or without leading '/'.
+  static bool isProtectedFsPath(const String &name) {
+    if (name.length() == 0)
+      return false;
+    // normalize to start with '/'
+    String n = name;
+    if (!n.startsWith("/")) {
+      n = String("/") + n;
+    }
+    // basic normalization to avoid simple traversal attempts
+    while (n.indexOf("//") >= 0)
+      n.replace("//", "/");
+    if (n.indexOf("..") >= 0)
+      return true; // disallow parent traversal
+
+    // deny-list of sensitive paths/patterns
+    if (n.equals("/config.json"))
+      return true;
+
+    return false;
+  }
+
+public:
+  virtual ~AbstractPage() = default;
+  void setAuth(AuthManager *a) { this->auth = a; }
+
   static String getHeader(httpd_req_t *req, const String &param) {
     LV_LOG_DEBUG("Getting header %s", param.c_str());
     size_t len = httpd_req_get_hdr_value_len(req, param.c_str());
-    char *contentType = new char[len + 1];
-    memset(contentType, 0, len + 1);
-    httpd_req_get_hdr_value_str(req, param.c_str(), contentType, len + 1);
-    String header = String(contentType);
-    delete[] contentType;
-    LV_LOG_DEBUG("Got %s", contentType);
+    std::unique_ptr<char[]> buf(new char[len + 1]());
+    httpd_req_get_hdr_value_str(req, param.c_str(), buf.get(), len + 1);
+    String header = String(buf.get());
+    LV_LOG_DEBUG("Got %s", header.c_str());
     return header;
   }
 
@@ -215,6 +246,20 @@ protected:
     return reader;
   }
 
+  // Convenience: read a single multipart field by name and stream it to the provided callback.
+  // Returns true if multipart was parsed and the field was found (callback may be called multiple times).
+  static bool readForm(httpd_req_t *req, const String &fieldName, const ReadCallback &callback) {
+    bool found = false;
+    bool ok = streamReadMultipart(req, [&](const String &name, const String &filename) {
+      if (name.equals(fieldName)) {
+        found = true;
+        return callback;
+      }
+      return static_cast<ReadCallback>(nullptr);
+    });
+    return ok && found;
+  }
+
 protected:
   explicit AbstractPage(httpd_handle_t server, http_method method, const char *path) {
     bool isWebsocket = String("/ws").equals(path);
@@ -233,7 +278,55 @@ protected:
     }
   }
 
-  static esp_err_t handlerStatic(httpd_req_t *request) { return ((AbstractPage *)request->user_ctx)->handler(request); }
+  static esp_err_t handlerStatic(httpd_req_t *request) {
+    auto *self = static_cast<AbstractPage *>(request->user_ctx);
+    // Auth check if required
+    if (self->requiresAuth()) {
+      bool ok = false;
+      if (self->auth != nullptr) {
+        // Delegate to AuthManager via helper function on AbstractPage to avoid coupling
+        ok = AbstractPage::isAuthorized(self, request);
+      }
+      LV_LOG_DEBUG("is auth ok? %i", ok);
+      // If default password is still set, restrict access to only a small allowlist
+      bool allowed = false;
+      if (!ok && self->auth && self->auth->mustChangePassword()) {
+        const char *uri = request->uri;
+        // allowlist while in initial-setup: login, logout, change password, and security status
+        allowed = (strcmp(uri, "/api/login") == 0) || (strcmp(uri, "/api/logout") == 0) ||
+                  (strcmp(uri, "/api/changePassword") == 0) || (strcmp(uri, "/api/status/security") == 0);
+        LV_LOG_DEBUG("is req allowed? %i", allowed);
+        LV_LOG_DEBUG("Request URI? %s", uri);
+        if (!allowed) {
+          httpd_resp_set_status(request, "428 Precondition Required");
+          httpd_resp_set_hdr(request, "Cache-Control", "no-store");
+          httpd_resp_set_type(request, "application/json");
+          httpd_resp_sendstr(request, "{\"error\":\"password_change_required\"}");
+          return ESP_OK;
+        }
+      }
+
+      if (!ok && !allowed) {
+        httpd_resp_set_status(request, "401 Unauthorized");
+        httpd_resp_set_hdr(request, "Cache-Control", "no-store");
+        httpd_resp_set_type(request, "application/json");
+        httpd_resp_sendstr(request, "{\"error\":\"unauthorized\"}");
+        return ESP_OK;
+      }
+    }
+    return self->handler(request);
+  }
 
   virtual esp_err_t handler(httpd_req_t *request) = 0;
+
+  // Helper doing cookie/token extraction and delegating to AuthManager
+  static bool isAuthorized(AbstractPage *self, httpd_req_t *req) {
+    String cookie = getHeader(req, "Cookie");
+    String authz = getHeader(req, "Authorization");
+    bool ok = false;
+    if (self->auth) {
+      ok = self->auth->isAuthorizedCookie(cookie) || self->auth->isAuthorizedHeader(authz);
+    }
+    return ok;
+  }
 };

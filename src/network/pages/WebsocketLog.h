@@ -8,6 +8,10 @@ private:
 public:
   explicit WebsocketLog(httpd_handle_t server) : AbstractPage(server, HTTP_GET, "/ws") { this->server = server; }
 
+protected:
+  bool requiresAuth() override { return true; }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     if (req->method == HTTP_GET) {
       LV_LOG_INFO("Handshake done, the new connection was opened");
