@@ -194,7 +194,7 @@
         isSaving = true;
         console.log(ssid + "/" + pass + "/" + ip);
         const data = new FormData();
-        
+
         // Only append fields that have changed
         if (ssid !== initialSsid) {
             data.append("ssid", ssid);

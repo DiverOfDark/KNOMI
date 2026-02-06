@@ -97,7 +97,7 @@ public:
     // Validate that SSID and password are set before connecting
     String currentSsid = this->config->getNetworkConfig()->getSsid();
     String currentPsk = this->config->getNetworkConfig()->getPsk();
-    
+
     if (currentSsid.length() == 0 || currentPsk.length() == 0) {
       httpd_resp_set_type(req, "application/json");
       httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "{\"error\":\"WiFi SSID and password must be set\"}");
