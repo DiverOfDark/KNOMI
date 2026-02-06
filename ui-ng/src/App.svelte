@@ -48,7 +48,7 @@
     var availableUpdate = "";
     var networks = [];
 
-    var gateway = `ws://${window.location.hostname}/ws`;
+    var gateway = `ws://${window.location.host}/ws`;
     var websocket;
 
     var interval: number;
