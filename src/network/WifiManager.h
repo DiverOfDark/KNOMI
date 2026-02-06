@@ -12,6 +12,7 @@ private:
   WifiAccessPoint *ap = nullptr;
   WifiStation *sta = nullptr;
   WifiScanner *scanner = nullptr;
+  unsigned long staStartTime = 0;
 
 public:
   explicit WifiManager(Config *config) {
@@ -67,6 +68,7 @@ public:
     }
 
     sta = new WifiStation(networkConfig);
+    staStartTime = millis();
   }
 
   void tick() {
@@ -78,7 +80,8 @@ public:
         ap = nullptr;
       }
     } else {
-      if (!WiFi.isConnected()) {
+      // 10 second grace period during boot
+      if (!WiFi.isConnected() && (sta == nullptr || millis() - staStartTime > 10000)) {
         ap = new WifiAccessPoint();
       }
     }
