@@ -47,6 +47,11 @@
             method: "POST",
             body: data,
         });
+        if (res.status === 401 || res.status === 428) {
+            isSaving = false;
+            window.location.reload();
+            return;
+        }
         if (res.status == 200) {
             isSaving = false;
             router.goto("/theme");

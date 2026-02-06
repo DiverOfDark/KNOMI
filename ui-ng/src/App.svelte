@@ -53,7 +53,103 @@
 
     var interval: number;
 
+    // Auth state
+    var authState: "loading" | "login" | "change_password" | "authenticated" =
+        "loading";
+    var loginPassword = "";
+    var loginError = "";
+    var oldPassword = "";
+    var newPassword = "";
+    var changePasswordError = "";
+
     router.mode.hash();
+
+    async function checkAuth() {
+        try {
+            const res = await fetch("/api/status/security");
+            if (res.status === 401) {
+                authState = "login";
+            } else if (res.status === 428) {
+                authState = "change_password";
+            } else if (res.ok) {
+                const json = await res.json();
+                if (json.mustChangePassword) {
+                    authState = "change_password";
+                } else {
+                    authState = "authenticated";
+                    load();
+                }
+            } else {
+                authState = "login";
+            }
+        } catch {
+            authState = "login";
+        }
+    }
+
+    async function login() {
+        loginError = "";
+        const data = new FormData();
+        data.append("password", loginPassword);
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                body: data,
+            });
+            if (res.ok) {
+                loginPassword = "";
+                checkAuth();
+            } else {
+                loginError = "Invalid password";
+            }
+        } catch {
+            loginError = "Connection error";
+        }
+    }
+
+    async function changePassword() {
+        changePasswordError = "";
+        const data = new FormData();
+        data.append("oldPassword", oldPassword);
+        data.append("newPassword", newPassword);
+        try {
+            const res = await fetch("/api/changePassword", {
+                method: "POST",
+                body: data,
+            });
+            if (res.ok) {
+                // Auto-login with new password
+                const loginData = new FormData();
+                loginData.append("password", newPassword);
+                await fetch("/api/login", {
+                    method: "POST",
+                    body: loginData,
+                });
+                oldPassword = "";
+                newPassword = "";
+                checkAuth();
+            } else {
+                const json = await res.json();
+                if (json.error === "invalid_old_password") {
+                    changePasswordError = "Current password is incorrect";
+                } else if (json.error === "invalid_new_password") {
+                    changePasswordError =
+                        "New password is invalid (cannot be empty or the default)";
+                } else {
+                    changePasswordError = json.error || "Failed to change password";
+                }
+            }
+        } catch {
+            changePasswordError = "Connection error";
+        }
+    }
+
+    async function logout() {
+        await fetch("/api/logout", { method: "POST" });
+        authState = "login";
+        loginPassword = "";
+        loginError = "";
+    }
 
     async function load() {
         let response = await fetch("/api/status");
@@ -222,6 +318,11 @@
             method: "POST",
             body: data,
         });
+        if (res.status === 401 || res.status === 428) {
+            isSaving = false;
+            authState = res.status === 428 ? "change_password" : "login";
+            return;
+        }
         if (res.status == 200) {
             isSaving = false;
             router.goto("/setupdone");
@@ -299,6 +400,12 @@
         const request = new XMLHttpRequest();
 
         request.addEventListener("load", () => {
+            if (request.status === 401 || request.status === 428) {
+                authState = request.status === 428 ? "change_password" : "login";
+                otaProgress = false;
+                otaPercentage = 0;
+                return;
+            }
             // request.response will hold the response from the server
             if (request.status === 200) {
                 otaSuccess = true;
@@ -334,9 +441,68 @@
             });
     }
 
-    load();
+    checkAuth();
 </script>
 
+{#if authState === "loading"}
+    <main class="auth-container">
+        <div aria-busy="true">Checking authentication...</div>
+    </main>
+{:else if authState === "login"}
+    <main class="auth-container">
+        <article class="auth-card">
+            <header>
+                <span class="logo"
+                    ><!-- eslint-disable -->{@html voronLogo}<!-- eslint-enable --></span
+                >
+                <h4>KNOMI Login</h4>
+            </header>
+            <form on:submit|preventDefault={login}>
+                <label class="input">
+                    <span>Admin Password</span>
+                    <input
+                        type="password"
+                        bind:value={loginPassword}
+                        autofocus
+                    />
+                </label>
+                {#if loginError}
+                    <div class="auth-error">{loginError}</div>
+                {/if}
+                <button type="submit">Login</button>
+            </form>
+        </article>
+    </main>
+{:else if authState === "change_password"}
+    <main class="auth-container">
+        <article class="auth-card">
+            <header>
+                <span class="logo"
+                    ><!-- eslint-disable -->{@html voronLogo}<!-- eslint-enable --></span
+                >
+                <h4>Set Admin Password</h4>
+            </header>
+            <p>
+                You must change the default admin password before continuing.
+            </p>
+            <form on:submit|preventDefault={changePassword}>
+                <label class="input">
+                    <span>Current Password</span>
+                    <input type="password" bind:value={oldPassword} autofocus />
+                    <small>Default password is <b>KNOMI</b></small>
+                </label>
+                <label class="input">
+                    <span>New Password</span>
+                    <input type="password" bind:value={newPassword} />
+                </label>
+                {#if changePasswordError}
+                    <div class="auth-error">{changePasswordError}</div>
+                {/if}
+                <button type="submit">Change Password</button>
+            </form>
+        </article>
+    </main>
+{:else}
 <main>
     <nav>
         <ul>
@@ -350,6 +516,9 @@
                 <a href="/update" use:active>Update</a>
                 <a href="/theme" use:active disabled={otaProgress || null}
                     >Theme</a
+                >
+                <a href="/#" on:click|preventDefault={logout} class="logout-link"
+                    >Logout</a
                 >
             </li>
         </ul>
@@ -681,6 +850,7 @@
         </p>
     </footer>
 </main>
+{/if}
 
 <style global>
     .logo {
@@ -745,5 +915,32 @@
 
     .read-the-docs {
         color: #888;
+    }
+
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+    }
+
+    .auth-card {
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .auth-card header {
+        text-align: center;
+    }
+
+    .auth-error {
+        padding: 0.75em;
+        background-color: var(--del-color);
+        margin-bottom: 1em;
+        border-radius: var(--border-radius);
+    }
+
+    .logout-link {
+        margin-left: auto;
     }
 </style>
