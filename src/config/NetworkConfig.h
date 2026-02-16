@@ -16,7 +16,12 @@ public:
   }
 
   String getSsid() { return this->object["ssid"]; }
-  void setSsid(String ssid) { this->object["ssid"] = ssid; }
+  void setSsid(String ssid) {
+    if (getSsid() != ssid) {
+      this->object["psk"] = "";
+    }
+    this->object["ssid"] = ssid;
+  }
   String getPsk() { return this->object["psk"]; }
   void setPsk(String psk) { this->object["psk"] = psk; }
   String getHostname() { return this->object["hostname"]; }
