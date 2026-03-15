@@ -17,6 +17,11 @@ public:
     if (idx >= 0)
       filename = filename.substring(0, idx);
 
+    if (isProtectedFsPath(filename)) {
+      httpd_resp_send_err(req, HTTPD_403_FORBIDDEN, "FORBIDDEN");
+      return ESP_OK;
+    }
+
     if (!LittleFS.exists(filename)) {
       httpd_resp_send_404(req);
       return ESP_FAIL;

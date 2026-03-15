@@ -1,4 +1,5 @@
 #pragma once
+#include "../../Version.h"
 #include "AbstractPage.h"
 
 class ApiStatusGet : public AbstractPage {
@@ -27,7 +28,12 @@ public:
 
     if (this->config->getNetworkConfig() != nullptr) {
       doc["ssid"] = this->config->getNetworkConfig()->getSsid();
-      doc["pass"] = this->config->getNetworkConfig()->getPsk();
+      unsigned int pskLength = this->config->getNetworkConfig()->getPsk().length();
+      String maskedPsk = String();
+      for (unsigned int i = 0; i < pskLength; i++) {
+        maskedPsk.concat("*");
+      }
+      doc["pass"] = maskedPsk;
       doc["hostname"] = this->config->getNetworkConfig()->getHostname();
     }
 

@@ -20,8 +20,9 @@ public:
     for (NetworkInfo info : foundNetworks) {
       JsonObject obj = doc.add<JsonObject>();
       obj["name"] = info.networkName;
-      obj["signal"] = info.signal;
-      obj["isPublic"] = info.isPublic;
+      // Keep response keys stable while fields were renamed internally
+      obj["signal"] = info.rssiDbm;
+      obj["isPublic"] = info.isOpen;
     }
 
     String output;

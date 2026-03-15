@@ -56,7 +56,7 @@ public:
       } else {
         if (WiFi.isConnected() && !button->isPressed() && !deps.klipperStreaming->connected &&
             currentSceneId != SceneId::NoKlipper && currentSceneId != SceneId::BootupLogo &&
-            currentSceneId != SceneId::APConfig) {
+            currentSceneId != SceneId::APConfig && currentSceneId != SceneId::FirmwareUpdate) {
           switchSceneRequest = new SwitchSceneRequest(deps, SceneId::NoKlipper);
           LV_LOG_INFO(("Switching to NoKlipper scene from " + String(currentSceneId)).c_str());
         }

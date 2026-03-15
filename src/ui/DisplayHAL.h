@@ -33,8 +33,6 @@ public:
 
   // Draw a line of image directly on the LCD
   void GIFDraw(GIFDRAW *pDraw, int xOffset, int yOffset, int imageWidth, int imageHeight) {
-    tft->startWrite();
-
     int xOffsetFromLeft = CENTER_X + xOffset - imageWidth / 2;
     int yOffsetFromTop = CENTER_Y + yOffset - imageHeight / 2;
 
@@ -50,6 +48,8 @@ public:
     y = pDraw->iY + pDraw->y; // current line
     if (y >= DISPLAY_HEIGHT || pDraw->iX >= DISPLAY_WIDTH || iWidth < 1)
       return;
+
+    tft->startWrite();
 
     // Old image disposal
     s = pDraw->pPixels;

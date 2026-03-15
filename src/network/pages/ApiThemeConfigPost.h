@@ -11,6 +11,10 @@ public:
     this->config = uiConfig;
   }
 
+protected:
+  bool requiresAuth() override { return true; }
+
+public:
   esp_err_t handler(httpd_req_t *req) override {
     String newAccentColor;
     String newBackgroundColor;

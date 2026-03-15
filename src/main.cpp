@@ -27,25 +27,38 @@ uint32_t netcheck_nexttime = 0;
 
 SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
 
-ulong lastLogTime;
+uint32_t lastLogTime = 0;
 void logToSerial(const char *logLevel, const char *file, int line, const char *func, const char *format, ...) {
+  // Take the mutex for the entire formatting + output to avoid interleaved logs from multiple tasks
+  xSemaphoreTake(xMutex, portMAX_DELAY);
+
   va_list args;
   va_start(args, format);
-  static char msg[1024];
-  ulong t = millis();
-  vsnprintf(msg, sizeof(msg), format, args);
+  char msg[768];
+  int tlen = vsnprintf(msg, sizeof(msg), format, args);
   va_end(args);
+  if (tlen < 0) {
+    // formatting error; ensure msg is terminated
+    msg[0] = '\0';
+  } else if (tlen >= static_cast<int>(sizeof(msg))) {
+    // truncated; indicate
+    const char *ellipsis = "...";
+    size_t el = strlen(ellipsis);
+    memcpy(&msg[sizeof(msg) - el - 1], ellipsis, el);
+    msg[sizeof(msg) - 1] = '\0';
+  }
 
-  static char buf[2048];
+  uint32_t t = millis();
+  char buf[1024];
   snprintf(buf, sizeof(buf), "[%s] \t[%u] [%s] \t(%lu.%03lu, +%lu)\t %s: %s\t(in %s:%d)\n", logLevel,
-           esp_get_free_heap_size(), pcTaskGetName(xTaskGetCurrentTaskHandle()), t / 1000, t % 1000, t - lastLogTime,
-           func, msg, file, line);
+           esp_get_free_heap_size(), pcTaskGetName(xTaskGetCurrentTaskHandle()), static_cast<unsigned long>(t / 1000),
+           static_cast<unsigned long>(t % 1000), static_cast<unsigned long>(t - lastLogTime), func, msg, file, line);
   lastLogTime = t;
-  xSemaphoreTake(xMutex, portMAX_DELAY);
-  ets_printf(buf);
-  xSemaphoreGive(xMutex);
 
-  // printf(buf);
+  ets_printf("%s", buf);
+  // release the mutex before forwarding to websocket to avoid reentrancy/deadlocks
+  xSemaphoreGive(xMutex);
+  // forward to websocket if available (must not log to avoid recursion)
   if (webServer != nullptr) {
     webServer->websocketLog(buf);
   }

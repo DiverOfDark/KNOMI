@@ -22,11 +22,13 @@ public:
 
     std::set<String> added;
     while (file) {
-      const JsonObject &item = array.add<JsonObject>();
-      added.insert(String(file.name()));
-      item["name"] = String(file.name());
-      item["size"] = file.size();
-
+      String name = String(file.name());
+      if (!isProtectedFsPath(name)) {
+        const JsonObject &item = array.add<JsonObject>();
+        added.insert(name);
+        item["name"] = name;
+        item["size"] = file.size();
+      }
       file = root.openNextFile();
     }
     root.close();

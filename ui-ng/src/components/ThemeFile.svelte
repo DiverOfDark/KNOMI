@@ -60,6 +60,12 @@
         uploadInProgress = true;
 
         request.addEventListener("load", () => {
+            if (request.status === 401 || request.status === 428) {
+                uploadInProgress = false;
+                uploadProgress = 0;
+                window.location.reload();
+                return;
+            }
             // request.response will hold the response from the server
             if (request.status === 200) {
                 selectedFileError = null;
