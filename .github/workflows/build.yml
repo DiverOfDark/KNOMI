@@ -206,7 +206,7 @@ jobs:
           find ${{steps.download-flasher.outputs.download-path}}
 
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body: |
             Files published:
